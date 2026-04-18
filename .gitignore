@@ -3,3 +3,6 @@
 *.d
 *.swp
 .DS_Store
+AppIcon.iconset/
+icon
+RELEASE_CHECKLIST.md

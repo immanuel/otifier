@@ -29,13 +29,14 @@ $(BUILD_DIR)/ax-explorer: Sources/ax-explorer/main.swift | $(BUILD_DIR)
 
 app: $(APP_BUNDLE)
 
-$(APP_BUNDLE): $(APP_SOURCES) $(LIB_SOURCES) Sources/OTifierApp/Info.plist | $(BUILD_DIR)
+$(APP_BUNDLE): $(APP_SOURCES) $(LIB_SOURCES) Sources/OTifierApp/Info.plist AppIcon.icns | $(BUILD_DIR)
 	@echo "Building Otifier.app..."
 	$(SWIFT) $(SWIFT_FLAGS) -o $(BUILD_DIR)/OTifierApp $(APP_SOURCES) $(LIB_SOURCES)
 	@mkdir -p $(APP_BUNDLE)/Contents/MacOS
 	@mkdir -p $(APP_BUNDLE)/Contents/Resources
 	@cp $(BUILD_DIR)/OTifierApp $(APP_BUNDLE)/Contents/MacOS/Otifier
 	@cp Sources/OTifierApp/Info.plist $(APP_BUNDLE)/Contents/Info.plist
+	@cp AppIcon.icns $(APP_BUNDLE)/Contents/Resources/AppIcon.icns
 	@codesign --force --sign - $(APP_BUNDLE)
 	@echo "Built $(APP_BUNDLE)"
 

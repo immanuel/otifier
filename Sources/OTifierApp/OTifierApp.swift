@@ -8,7 +8,7 @@ struct OTifierApp: App {
         MenuBarExtra {
             OTifierMenu(state: appState)
         } label: {
-            Image(systemName: appState.recentOTPs.isEmpty ? "key" : "key.fill")
+            Image(systemName: "rectangle.and.pencil.and.ellipsis")
         }
         .menuBarExtraStyle(.window)
     }
