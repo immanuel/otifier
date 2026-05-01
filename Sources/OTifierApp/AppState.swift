@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import ApplicationServices
 
 struct OTPEntry: Identifiable {
@@ -25,12 +26,14 @@ class AppState: ObservableObject {
 
     private var notifWatcher: NotificationWatcher?
     private var cleanupTimer: Timer?
+    private var permissionPollTimer: Timer?
 
     init() {
         startMonitoring()
         // Delay permission check — AX system may not be ready at init
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
             self?.checkPermissions()
+            self?.promptForAccessibilityIfNeeded()
         }
         cleanupTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
             Task { @MainActor in
@@ -101,6 +104,48 @@ class AppState: ObservableObject {
         NSWorkspace.shared.open(url)
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
             self?.checkPermissions()
+        }
+        startPollingForPermission()
+    }
+
+    func promptForAccessibilityIfNeeded() {
+        guard !AXIsProcessTrusted() else { return }
+
+        let alert = NSAlert()
+        alert.messageText = "Otifier needs Accessibility access"
+        alert.informativeText = """
+            Otifier reads notification banners to detect OTP codes \
+            and copy them to your clipboard automatically. \
+            Without Accessibility permission, it can't see notifications.
+            """
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "Open System Settings")
+        alert.addButton(withTitle: "Later")
+
+        NSApp.activate(ignoringOtherApps: true)
+
+        if alert.runModal() == .alertFirstButtonReturn {
+            requestAccessibility()
+        }
+    }
+
+    private func startPollingForPermission() {
+        permissionPollTimer?.invalidate()
+        let deadline = Date().addingTimeInterval(10 * 60)
+        permissionPollTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
+            Task { @MainActor in
+                guard let self else { timer.invalidate(); return }
+                if AXIsProcessTrusted() {
+                    self.hasAccessibilityPermission = true
+                    self.notifWatcher?.stop()
+                    self.startMonitoring()
+                    timer.invalidate()
+                    self.permissionPollTimer = nil
+                } else if Date() > deadline {
+                    timer.invalidate()
+                    self.permissionPollTimer = nil
+                }
+            }
         }
     }
 }
