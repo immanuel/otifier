@@ -34,6 +34,18 @@ struct OTifierMenu: View {
 
             Divider()
 
+            Toggle(isOn: Binding(
+                get: { state.launchAtLoginEnabled },
+                set: { state.setLaunchAtLogin($0) }
+            )) {
+                Text("Launch at Login")
+            }
+            .toggleStyle(.checkbox)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+
+            Divider()
+
             Button("Quit Otifier") {
                 NSApplication.shared.terminate(nil)
             }
@@ -44,6 +56,7 @@ struct OTifierMenu: View {
         .frame(width: 280)
         .onAppear {
             state.checkPermissions()
+            state.refreshLaunchAtLoginStatus()
         }
     }
 }

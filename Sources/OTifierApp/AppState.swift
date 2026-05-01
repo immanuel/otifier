@@ -1,6 +1,9 @@
 import SwiftUI
 import AppKit
 import ApplicationServices
+import ServiceManagement
+
+private let launchAtLoginPromptShownKey = "launchAtLoginPromptShown"
 
 struct OTPEntry: Identifiable {
     let id = UUID()
@@ -22,6 +25,7 @@ class AppState: ObservableObject {
     @Published var isMonitoring = true
     @Published var recentOTPs: [OTPEntry] = []
     @Published var hasAccessibilityPermission = false
+    @Published var launchAtLoginEnabled = false
     @Published var statusMessage = "Starting..."
 
     private var notifWatcher: NotificationWatcher?
@@ -29,11 +33,17 @@ class AppState: ObservableObject {
     private var permissionPollTimer: Timer?
 
     init() {
+        refreshLaunchAtLoginStatus()
         startMonitoring()
         // Delay permission check — AX system may not be ready at init
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-            self?.checkPermissions()
-            self?.promptForAccessibilityIfNeeded()
+            guard let self else { return }
+            self.checkPermissions()
+            if self.hasAccessibilityPermission {
+                self.promptForLaunchAtLoginIfNeeded()
+            } else {
+                self.promptForAccessibilityIfNeeded()
+            }
         }
         cleanupTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
             Task { @MainActor in
@@ -141,11 +151,54 @@ class AppState: ObservableObject {
                     self.startMonitoring()
                     timer.invalidate()
                     self.permissionPollTimer = nil
+                    self.promptForLaunchAtLoginIfNeeded()
                 } else if Date() > deadline {
                     timer.invalidate()
                     self.permissionPollTimer = nil
                 }
             }
+        }
+    }
+
+    func refreshLaunchAtLoginStatus() {
+        launchAtLoginEnabled = SMAppService.mainApp.status == .enabled
+    }
+
+    func setLaunchAtLogin(_ enabled: Bool) {
+        do {
+            if enabled {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+        } catch {
+            NSLog("Otifier: failed to \(enabled ? "register" : "unregister") login item: \(error)")
+        }
+        refreshLaunchAtLoginStatus()
+    }
+
+    func promptForLaunchAtLoginIfNeeded() {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: launchAtLoginPromptShownKey) else { return }
+        guard SMAppService.mainApp.status != .enabled else { return }
+
+        defaults.set(true, forKey: launchAtLoginPromptShownKey)
+
+        let alert = NSAlert()
+        alert.messageText = "Launch Otifier at login?"
+        alert.informativeText = """
+            Otifier works best running in the background so it can catch \
+            OTP codes the moment they arrive. You can change this anytime \
+            from the Otifier menu.
+            """
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "Launch at Login")
+        alert.addButton(withTitle: "Not Now")
+
+        NSApp.activate(ignoringOtherApps: true)
+
+        if alert.runModal() == .alertFirstButtonReturn {
+            setLaunchAtLogin(true)
         }
     }
 }
