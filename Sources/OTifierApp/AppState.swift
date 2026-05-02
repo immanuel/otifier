@@ -34,12 +34,19 @@ class AppState: ObservableObject {
 
     init() {
         refreshLaunchAtLoginStatus()
-        startMonitoring()
-        // Delay permission check — AX system may not be ready at init
+        // Defer starting the watcher until we know permission is granted —
+        // calling AX APIs without permission triggers macOS's own system prompt,
+        // which would appear on top of our custom NSAlert.
+        hasAccessibilityPermission = AXIsProcessTrusted()
+        if hasAccessibilityPermission {
+            startMonitoring()
+        }
+        // Delay permission flow — AX system may not be ready at init
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
             guard let self else { return }
             self.checkPermissions()
             if self.hasAccessibilityPermission {
+                if self.notifWatcher == nil { self.startMonitoring() }
                 self.promptForLaunchAtLoginIfNeeded()
             } else {
                 self.promptForAccessibilityIfNeeded()
@@ -122,15 +129,17 @@ class AppState: ObservableObject {
         guard !AXIsProcessTrusted() else { return }
 
         let alert = NSAlert()
-        alert.messageText = "Otifier needs Accessibility access"
+        alert.messageText = "Allow Otifier to read notification banners?"
         alert.informativeText = """
-            Otifier reads notification banners to detect OTP codes \
-            and copy them to your clipboard automatically. \
-            Without Accessibility permission, it can't see notifications.
+            Otifier copies verification codes to your clipboard the moment a \
+            notification arrives. macOS groups this under "Accessibility" \
+            permissions — it only lets Otifier read notification text, nothing else.
+
+            When System Settings opens, switch on Otifier in the list.
             """
         alert.alertStyle = .warning
         alert.addButton(withTitle: "Open System Settings")
-        alert.addButton(withTitle: "Later")
+        alert.addButton(withTitle: "Not Now")
 
         NSApp.activate(ignoringOtherApps: true)
 
@@ -185,14 +194,14 @@ class AppState: ObservableObject {
         defaults.set(true, forKey: launchAtLoginPromptShownKey)
 
         let alert = NSAlert()
-        alert.messageText = "Launch Otifier at login?"
+        alert.messageText = "Launch Otifier on restart?"
         alert.informativeText = """
-            Otifier works best running in the background so it can catch \
-            OTP codes the moment they arrive. You can change this anytime \
-            from the Otifier menu.
+            Verification codes can arrive at any time, so Otifier is most \
+            useful when it's already running. You can change this anytime \
+            from the menu.
             """
         alert.alertStyle = .informational
-        alert.addButton(withTitle: "Launch at Login")
+        alert.addButton(withTitle: "Launch on restart")
         alert.addButton(withTitle: "Not Now")
 
         NSApp.activate(ignoringOtherApps: true)

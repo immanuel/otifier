@@ -133,3 +133,4 @@ $(BUILD_DIR):
 
 clean:
 	rm -rf $(BUILD_DIR)
+	rm -f $(APP_ZIP) $(DMG)
