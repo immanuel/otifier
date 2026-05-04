@@ -2,6 +2,7 @@ import SwiftUI
 
 struct OTifierMenu: View {
     @ObservedObject var state: AppState
+    @ObservedObject var updater: UpdaterController
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -41,6 +42,15 @@ struct OTifierMenu: View {
                 Text("Launch at Login")
             }
             .toggleStyle(.checkbox)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+
+            Divider()
+
+            Button("Check for Updates…") {
+                updater.checkForUpdates()
+            }
+            .buttonStyle(.plain)
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
 

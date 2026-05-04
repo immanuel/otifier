@@ -9,3 +9,5 @@ RELEASE_CHECKLIST.md
 Makefile.local
 Otifier.zip
 Otifier.dmg
+Vendor/
+Releases/

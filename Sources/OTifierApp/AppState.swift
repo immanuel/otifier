@@ -135,7 +135,7 @@ class AppState: ObservableObject {
         let alert = NSAlert()
         alert.messageText = "Allow Otifier to read notification banners?"
         alert.informativeText = """
-            Otifier requires Accessibility permission to read notification banners and copy verification codes to your clipboard.\
+            Otifier requires Accessibility permission to read notification banners and copy verification codes to your clipboard.
             """
         alert.alertStyle = .warning
         alert.addButton(withTitle: "Open System Settings")
