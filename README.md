@@ -48,22 +48,22 @@ make app
 open .build/Otifier.app
 ```
 
-On first launch, grant Accessibility permission when prompted:
-**System Settings → Privacy & Security → Accessibility → enable Otifier**
+On first launch, grant Accessibility permission when prompted.
 
 The app runs in the menu bar (key icon). Click it to see detected OTP codes
 or check permission status.
 
-To launch at login, add `Otifier.app` to your Login Items in System Settings.
+To launch on restart, add `Otifier.app` to your Login Items in System Settings.
 
 ## Menu bar app
 
-- **Key icon** in the menu bar (filled when OTPs are present)
+- **Pencil icon** in the menu bar 
 - **Monitoring panel** — shows recent OTP codes with source and timestamp;
   click any code to re-copy it to clipboard
 - **On/off toggle** — pause and resume monitoring
 - **Permission CTA** — shown when Accessibility permission is missing,
   with a button to open System Settings directly
+- **Launch on restart** — toggle to launch on restart
 
 ## CLI tool
 

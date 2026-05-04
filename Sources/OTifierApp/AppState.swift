@@ -31,6 +31,7 @@ class AppState: ObservableObject {
     private var notifWatcher: NotificationWatcher?
     private var cleanupTimer: Timer?
     private var permissionPollTimer: Timer?
+    private let dragPanelController = AccessibilityDragPanelController()
 
     init() {
         refreshLaunchAtLoginStatus()
@@ -119,6 +120,9 @@ class AppState: ObservableObject {
     func requestAccessibility() {
         let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
         NSWorkspace.shared.open(url)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            self?.dragPanelController.show()
+        }
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
             self?.checkPermissions()
         }
@@ -131,11 +135,7 @@ class AppState: ObservableObject {
         let alert = NSAlert()
         alert.messageText = "Allow Otifier to read notification banners?"
         alert.informativeText = """
-            Otifier copies verification codes to your clipboard the moment a \
-            notification arrives. macOS groups this under "Accessibility" \
-            permissions — it only lets Otifier read notification text, nothing else.
-
-            When System Settings opens, switch on Otifier in the list.
+            Otifier requires Accessibility permission to read notification banners and copy verification codes to your clipboard.\
             """
         alert.alertStyle = .warning
         alert.addButton(withTitle: "Open System Settings")
@@ -160,10 +160,12 @@ class AppState: ObservableObject {
                     self.startMonitoring()
                     timer.invalidate()
                     self.permissionPollTimer = nil
+                    self.dragPanelController.hide()
                     self.promptForLaunchAtLoginIfNeeded()
                 } else if Date() > deadline {
                     timer.invalidate()
                     self.permissionPollTimer = nil
+                    self.dragPanelController.hide()
                 }
             }
         }
