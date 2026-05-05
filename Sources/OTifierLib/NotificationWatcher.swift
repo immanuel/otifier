@@ -7,7 +7,12 @@ class NotificationWatcher {
     private var pollTimer: Timer?
     private var lastSeenTexts = Set<String>()
     private let maxCacheSize = 50
+    private var lastPermissionCheck = Date.distantPast
+    private let permissionCheckInterval: TimeInterval = 5
     var onOTPDetected: ((String, String) -> Void)?  // (otp, sourceText)
+    /// Called once if Accessibility permission is revoked while running.
+    /// The watcher stops itself before invoking this.
+    var onAXPermissionLost: (() -> Void)?
 
     init() {}
 
@@ -89,12 +94,25 @@ class NotificationWatcher {
     }
 
     func start() {
-        pollTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+        // 1.5s strikes a balance between responsiveness (banners stay on
+        // screen ~5s) and battery — every poll walks a chunk of the AX tree.
+        pollTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] _ in
             self?.pollNotifications()
         }
     }
 
     private func pollNotifications() {
+        // Throttled re-check of AX permission. If the user revokes it mid-run,
+        // shut down the timer and let AppState surface the permission CTA.
+        if Date().timeIntervalSince(lastPermissionCheck) >= permissionCheckInterval {
+            lastPermissionCheck = Date()
+            if !AXIsProcessTrusted() {
+                stop()
+                onAXPermissionLost?()
+                return
+            }
+        }
+
         let texts = getNotificationTexts()
         guard !texts.isEmpty else { return }
 

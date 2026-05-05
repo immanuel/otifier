@@ -66,6 +66,7 @@ class AppState: ObservableObject {
 
     func startMonitoring() {
         guard isMonitoring else { return }
+        guard notifWatcher == nil else { return }   // idempotent — don't spawn duplicates
 
         let watcher = NotificationWatcher()
         watcher.onOTPDetected = { [weak self] otp, source in
@@ -73,9 +74,22 @@ class AppState: ObservableObject {
                 self?.addOTP(code: otp, source: "Notification")
             }
         }
+        watcher.onAXPermissionLost = { [weak self] in
+            Task { @MainActor in
+                self?.handleAXPermissionLost()
+            }
+        }
         watcher.start()
         notifWatcher = watcher
         statusMessage = "Monitoring"
+    }
+
+    private func handleAXPermissionLost() {
+        // Watcher has already invalidated its timer; clear our reference
+        // and let the menu's permission CTA take over.
+        notifWatcher = nil
+        hasAccessibilityPermission = false
+        statusMessage = "Accessibility permission required"
     }
 
     func stopMonitoring() {
@@ -156,7 +170,7 @@ class AppState: ObservableObject {
                 guard let self else { timer.invalidate(); return }
                 if AXIsProcessTrusted() {
                     self.hasAccessibilityPermission = true
-                    self.notifWatcher?.stop()
+                    self.stopMonitoring()
                     self.startMonitoring()
                     timer.invalidate()
                     self.permissionPollTimer = nil

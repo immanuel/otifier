@@ -25,7 +25,7 @@ func assertNil(_ actual: String?, file: String = #file, line: Int = #line) {
 
 @main struct TestRunner {
     static func main() {
-        // --- Should extract ---
+        // --- Should extract: classic OTPs ---
         assertEqual(extractOTP(from: "Your verification code is 847291"), "847291")
         assertEqual(extractOTP(from: "G-583920 is your Google verification code"), "583920")
         assertEqual(extractOTP(from: "Your OTP: 9182"), "9182")
@@ -35,13 +35,41 @@ func assertNil(_ actual: String?, file: String = #file, line: Int = #line) {
         assertEqual(extractOTP(from: "Your 2FA code is 192837"), "192837")
         assertEqual(extractOTP(from: "Verification code: 83920147"), "83920147")
 
-        // --- Should NOT extract ---
-        assertNil(extractOTP(from: "Your balance is 847291"))
-        assertNil(extractOTP(from: "Your verification code is 1111"))
+        // --- Should extract: variations ---
+        assertEqual(extractOTP(from: "Your auth code is 928374"), "928374")
+        assertEqual(extractOTP(from: "Your one-time passcode: 4827"), "4827")
+        assertEqual(extractOTP(from: "Your one time code: 928374"), "928374")
+        assertEqual(extractOTP(from: "Your login code is 192847"), "192847")
+        assertEqual(extractOTP(from: "Tu código de verificación: 837465"), "837465")
+        assertEqual(extractOTP(from: "コード: 192847"), "192847")
+        assertEqual(extractOTP(from: "MFA code 554433"), "554433")
+
+        // --- Should extract: boundary lengths ---
+        assertEqual(extractOTP(from: "Your code: 1234"), "1234")          // exactly 4
+        assertEqual(extractOTP(from: "Your code: 12345678"), "12345678")  // exactly 8
+
+        // --- Should extract: strong marker overrides negative context ---
+        // Realistic case: a code about an order is still an OTP.
+        assertEqual(extractOTP(from: "Your verification code for order #99 is 871234"), "871234")
+
+        // --- Should NOT extract: not an OTP at all ---
+        assertEqual(extractOTP(from: "Your balance is 847291"), nil)
+        assertNil(extractOTP(from: "Your verification code is 1111"))     // all-same
+        assertNil(extractOTP(from: "Your code is 000000"))                // all-zero
         assertNil(extractOTP(from: "Confirm your order #847291 has shipped"))
         assertNil(extractOTP(from: "Your tracking code is 847291"))
         assertNil(extractOTP(from: "Please verify your email address"))
-        assertNil(extractOTP(from: "Your verification code is 123"))
+        assertNil(extractOTP(from: "Your verification code is 123"))      // <4 digits
+        assertNil(extractOTP(from: "Your code: 123456789"))               // >8 digits
+
+        // --- Should NOT extract: false positives that the old extractor allowed ---
+        assertNil(extractOTP(from: "Confirm your appointment at 14:30 — call 5551234567"))
+        assertNil(extractOTP(from: "Password reset link sent to user 12345678"))
+        assertNil(extractOTP(from: "Sign in attempt from IP 192.168.001.142 at 14:30"))
+        assertNil(extractOTP(from: "Verification at 14:30"))              // no 4-8 digit run nearby
+
+        // --- Should NOT extract: edge cases around \b ---
+        assertNil(extractOTP(from: "decode 12345 binary string"))         // 'code' is inside 'decode'
 
         // --- Summary ---
         print("\nOTP Extractor Tests: \(passed) passed, \(failed) failed")

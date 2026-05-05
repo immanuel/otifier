@@ -47,10 +47,13 @@ func showNotification(otp: String, source: String) {
 }
 
 private func deliver(otp: String, source: String) {
+    // Deliberately omit the OTP digits from the notification — macOS persists
+    // delivered notifications in Notification Center history (and on disk under
+    // ~/Library/Group Containers/group.com.apple.usernoted/), so digits here
+    // would linger after dismissal. The code is already on the clipboard.
     let content = UNMutableNotificationContent()
-    content.title = "Verification Code Detected"
-    content.subtitle = source
-    content.body = "Code: \(otp) — copied to clipboard"
+    content.title = "Verification code copied"
+    content.body = "Paste it where you need it."
     content.sound = .default
 
     let request = UNNotificationRequest(
