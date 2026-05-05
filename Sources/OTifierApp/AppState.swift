@@ -128,7 +128,11 @@ class AppState: ObservableObject {
     }
 
     private func cleanupOldOTPs() {
-        recentOTPs.removeAll { Date().timeIntervalSince($0.timestamp) > 600 }
+        // Codes are short-lived secrets; keep them in the menu just long
+        // enough for the user to re-copy if their first paste went somewhere
+        // wrong. 2 min is long enough for that and short enough to reduce
+        // shoulder-surfing risk if the menu is left open.
+        recentOTPs.removeAll { Date().timeIntervalSince($0.timestamp) > 120 }
     }
 
     func requestAccessibility() {
@@ -190,10 +194,21 @@ class AppState: ObservableObject {
     }
 
     func setLaunchAtLogin(_ enabled: Bool) {
-        if enabled {
-            try? SMAppService.mainApp.register()
-        } else {
-            try? SMAppService.mainApp.unregister()
+        do {
+            if enabled {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+        } catch {
+            let action = enabled ? "enable" : "disable"
+            let alert = NSAlert()
+            alert.messageText = "Couldn't \(action) Launch at Login"
+            alert.informativeText = error.localizedDescription
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "OK")
+            NSApp.activate(ignoringOtherApps: true)
+            alert.runModal()
         }
         refreshLaunchAtLoginStatus()
     }

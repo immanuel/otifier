@@ -151,7 +151,7 @@ Sources/
   OTifierLib/
     OTPExtractor.swift         # OTP regex matching + keyword gating
     ClipboardManager.swift     # Clipboard copy
-    Notifier.swift             # osascript notification display
+    Notifier.swift             # UNUserNotificationCenter notification display
     NotificationWatcher.swift  # AX-based notification polling
   OTifierApp/
     OTifierApp.swift           # SwiftUI MenuBarExtra entry point

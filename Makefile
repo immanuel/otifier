@@ -147,8 +147,13 @@ staple-app:
 	xcrun stapler staple $(APP_BUNDLE)
 	spctl --assess -vv $(APP_BUNDLE)
 
-dmg: $(APP_BUNDLE) AppIcon.icns
+dmg: AppIcon.icns
 	@if [ -z "$(DEVELOPER_ID)" ]; then echo "ERROR: DEVELOPER_ID is not set."; exit 1; fi
+	@if [ ! -d "$(APP_BUNDLE)" ]; then \
+		echo "ERROR: $(APP_BUNDLE) not found. Run 'make release' first,"; \
+		echo "or use 'make dist' for the full release pipeline."; \
+		exit 1; \
+	fi
 	@if codesign -dv $(APP_BUNDLE) 2>&1 | grep -q "Signature=adhoc"; then \
 		echo "ERROR: $(APP_BUNDLE) is ad-hoc signed (built with 'make app')."; \
 		echo "Run 'make release' first to produce a Developer ID-signed bundle,"; \

@@ -5,7 +5,9 @@ import ApplicationServices
 /// and extracts OTP codes from their text content.
 class NotificationWatcher {
     private var pollTimer: Timer?
-    private var lastSeenTexts = Set<String>()
+    // FIFO of recently-seen notification texts. Array-backed so the oldest
+    // entry actually gets evicted; Set.removeFirst would drop a random one.
+    private var lastSeenTexts: [String] = []
     private let maxCacheSize = 50
     private var lastPermissionCheck = Date.distantPast
     private let permissionCheckInterval: TimeInterval = 5
@@ -16,12 +18,11 @@ class NotificationWatcher {
 
     init() {}
 
-    /// The AX element for the Notification Center process
+    /// The AX element for the Notification Center process. Match by bundle id
+    /// first — `localizedName` varies by user locale.
     private func getNotificationCenterApp() -> AXUIElement? {
-        let runningApps = NSWorkspace.shared.runningApplications
-        for app in runningApps {
-            if let name = app.localizedName,
-               (name.contains("NotificationCenter") || name.contains("Notification Center") || app.bundleIdentifier == "com.apple.notificationcenterui") {
+        for app in NSWorkspace.shared.runningApplications {
+            if app.bundleIdentifier == "com.apple.notificationcenterui" {
                 return AXUIElementCreateApplication(app.processIdentifier)
             }
         }
@@ -119,7 +120,7 @@ class NotificationWatcher {
         let combined = texts.joined(separator: " | ")
         guard !lastSeenTexts.contains(combined) else { return }
 
-        lastSeenTexts.insert(combined)
+        lastSeenTexts.append(combined)
         if lastSeenTexts.count > maxCacheSize {
             lastSeenTexts.removeFirst()
         }

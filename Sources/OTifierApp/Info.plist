@@ -26,8 +26,6 @@
   <string>bQ4620xeCzR4tlM5CpUdrcZh6Nqd6JOYZdZl7Pd5gck=</string>
   <key>SUFeedURL</key>
   <string>https://otifier.com/appcast.xml</string>
-  <key>SUEnableInstallerLauncherService</key>
-  <true/>
   <key>SUEnableAutomaticChecks</key>
   <true/>
   <key>SUScheduledCheckInterval</key>

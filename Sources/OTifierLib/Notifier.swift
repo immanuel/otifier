@@ -18,13 +18,6 @@ private let notificationDelegate: NotificationDelegate = {
 }()
 
 func showNotification(otp: String, source: String) {
-    // CLI binary has no bundle identifier — UNUserNotificationCenter would crash.
-    // Fall back to osascript so the `otifier` CLI keeps working for diagnostics.
-    guard Bundle.main.bundleIdentifier != nil else {
-        showNotificationViaOsascript(otp: otp, source: source)
-        return
-    }
-
     _ = notificationDelegate
 
     let center = UNUserNotificationCenter.current()
@@ -62,14 +55,4 @@ private func deliver(otp: String, source: String) {
         trigger: nil
     )
     UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
-}
-
-private func showNotificationViaOsascript(otp: String, source: String) {
-    let script = """
-    display notification "Code: \(otp) — copied to clipboard" with title "OTP Detected" subtitle "\(source)" sound name "Glass"
-    """
-    let process = Process()
-    process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-    process.arguments = ["-e", script]
-    try? process.run()
 }
