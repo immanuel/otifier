@@ -1,183 +1,113 @@
-# Otifier — macOS OTP Auto-Capture
+ <div align="center">
 
-A macOS menu bar utility that automatically detects OTP codes from notification
-banners and copies them to your clipboard. Works with mirrored iPhone
-notifications (SMS, email, etc.) via the macOS Accessibility API.
+<img src="docs/icon_256x256.png" alt="Otifier" width="128" height="128" />
 
-## How it works
+# Otifier
 
-```
-iPhone notification → mirrored to Mac → notification banner
-    → AX tree poll (0.5s) → OTP regex match → clipboard + notification
-```
+**Auto-copy verification codes from macOS notifications to your clipboard.**
 
-Otifier polls the Notification Center's Accessibility tree every 0.5 seconds.
-When a notification banner appears containing an OTP code (detected via regex
-patterns and keyword matching), it automatically copies the code to your
-clipboard and shows a confirmation notification.
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-lightgrey)
+[![Latest release](https://img.shields.io/github/v/release/immanuel/otifier)](https://github.com/immanuel/otifier/releases)
 
-This works with any notification that appears as a macOS banner — mirrored
-iPhone texts, Gmail OTPs, app notifications, etc.
+</div>
 
-## Prerequisites
+Stop squinting at your phone to type the six-digit code your bank just texted
+you. Otifier lives in your menu bar, watches macOS notification banners as
+they appear, and copies any verification code straight to your clipboard —
+ready to paste.
 
-- macOS 13+ (Ventura or later) on Apple Silicon (M1 or later)
-- Xcode Command Line Tools (`xcode-select --install`)
-- Accessibility permission granted to the app
-- For building only: `Vendor/Sparkle/Sparkle.framework` and
-  `Vendor/Sparkle/bin/` (download the Sparkle 2.x binary release from
-  <https://github.com/sparkle-project/Sparkle/releases>). End users do not
-  need this — the framework is embedded in the shipped app bundle.
+It works with anything that surfaces as a macOS banner: mirrored iPhone SMS,
+email previews, app push notifications, etc.
 
-## Build
+## Demo
 
-```bash
-# Build the menu bar app
-make app
+<!-- [PLACEHOLDER: record a short GIF (notification arrives → code auto-copied → pasted into a login form) and save as docs/demo.gif] -->
+<!-- ![Otifier demo](docs/demo.gif) -->
 
-# Build the CLI tool (for debugging)
-make otifier
+## Features
 
-# Build the AX tree explorer (for diagnostics)
-make ax-explorer
+- **Just works** — no setup beyond granting Accessibility permission once
+- **Universal** — any macOS notification banner, including mirrored iPhone texts
+- **Instant** — code lands on your clipboard the moment the banner appears
+- **History** — recent codes in the menu bar; click any one to re-copy
+- **100% local** — no network calls, no telemetry, codes never leave your Mac
 
-# Run tests
-make test
-```
+## Install
 
-## Install and run
+**Download the latest DMG**, drag `Otifier` to Applications, launch, and
+grant Accessibility permission when prompted.
+
+> Download: [latest release](https://github.com/immanuel/otifier/releases/latest)
+
+To launch on login, add `Otifier` to **Login Items** in System Settings —
+or use the toggle in Otifier's menu.
+
+<details>
+<summary>Or build from source</summary>
+
+Requires macOS 13+ on Apple Silicon and Xcode Command Line Tools
+(`xcode-select --install`). 
 
 ```bash
 make app
 open .build/Otifier.app
 ```
 
-On first launch, grant Accessibility permission when prompted.
+</details>
 
-The app runs in the menu bar (pencil icon). Click it to see detected OTP codes
-or check permission status.
+## How it works
 
-To launch on restart, add `Otifier.app` to your Login Items in System Settings.
+```
+iPhone notification → mirrored to Mac → notification banner
+    → AX tree poll (1.5s) → verification code match → clipboard
+```
 
-## Menu bar app
+Otifier polls the Notification Center's Accessibility tree every 1.5 seconds.
+When a banner contains a verification code, it copies the code and shows a
+small confirmation notification.
 
-- **Pencil icon** in the menu bar 
-- **Monitoring panel** — shows recent OTP codes with source and timestamp;
-  click any code to re-copy it to clipboard
-- **On/off toggle** — pause and resume monitoring
-- **Permission CTA** — shown when Accessibility permission is missing,
-  with a button to open System Settings directly
-- **Launch on restart** — toggle to launch on restart
+<details>
+<summary>Detection rules</summary>
 
-The app also checks for updates automatically once a day via Sparkle.
+OTPs are matched via regex with keyword gating to avoid false positives:
 
-## CLI tool
+- **Patterns**: `code: 123456`, `OTP: 1234`, `G-583920`, bare 4–8 digit codes
+- **Keywords**: verification, code, OTP, one-time, 2FA, sign in, 验证码, …
+- **Filtering**: rejects repeated digits (`1111`), order/tracking numbers,
+  codes shorter than 4 digits
 
-For debugging or headless use:
+</details>
+
+## Privacy
+
+Otifier reads notification banners locally via the Accessibility API and
+writes to your clipboard. That's it.
+
+- No analytics, no telemetry, no crash reporting
+- No network calls except for checking app updates at `otifier.com`
+- Verification codes are never sent anywhere
+
+## Contributing
+
+Issues and pull requests are welcome.
 
 ```bash
-make otifier
-.build/otifier
+make test          # run the test suite
+make otifier       # build a CLI version (prints detected codes to stdout)
+make ax-explorer   # diagnostic tool to dump the AX tree of notification banners
 ```
 
-Prints detected notifications and OTPs to stdout. Useful for verifying that
-the AX approach captures your specific notification type.
-
-## AX Explorer
-
-Diagnostic tool to inspect the Accessibility tree of notification-related
-processes:
-
-```bash
-make ax-explorer
-.build/ax-explorer            # one-shot dump
-.build/ax-explorer --watch 30 # monitor for 30 seconds
-```
-
-Run this while a notification banner is visible to see its AX structure.
-
-## OTP detection
-
-Matches codes via regex patterns with keyword gating:
-
-- **Patterns**: `code: 123456`, `OTP: 1234`, `G-583920`, bare 4-8 digit codes
-- **Keywords**: verification, code, OTP, one-time, 2FA, sign in, 验证码, etc.
-- **False positive filtering**: rejects repeated digits (1111), order/tracking
-  numbers, codes shorter than 4 digits
-
-## Updates
-
-The app ships with [Sparkle 2.x](https://sparkle-project.org) embedded for
-in-app auto-updates.
-
-- **Feed**: `https://otifier.com/appcast.xml` (`SUFeedURL` in `Info.plist`)
-- **Background checks**: once per 24 hours (`SUScheduledCheckInterval`)
-  while the app is running.
-- **Signature verification**: every appcast item and downloaded DMG is
-  verified with EdDSA. The public key is pinned in `Info.plist`
-  (`SUPublicEDKey`); the matching private key lives only on the release
-  machine and is required to publish updates.
-- **Distribution**: signed, notarized, stapled DMGs are served from
-  `https://otifier.com/downloads/Otifier-<version>.dmg`.
-
-## Releasing
-
-End-to-end release flow (maintainer only — requires `DEVELOPER_ID` and a
-`otifier-notary` keychain profile for notarization):
-
-```bash
-# Build, sign, notarize, staple the .app, then package, notarize and
-# staple the DMG. Output: Otifier.dmg
-make dist
-
-# Copy the stapled DMG into Releases/ as Otifier-<version>.dmg and
-# regenerate Releases/appcast.xml using Sparkle's generate_appcast,
-# which signs each item with the EdDSA key paired with SUPublicEDKey.
-make appcast
-```
-
-Then upload `Releases/appcast.xml` and the new DMG to the host so they
-resolve at `https://otifier.com/appcast.xml` and
-`https://otifier.com/downloads/Otifier-<version>.dmg`.
-
-> Keep the Sparkle EdDSA private key safe. If it is lost, existing
-> installs can no longer accept updates and you will have to ship a new
-> app bundle (with a new public key) out-of-band.
-
-## Project structure
-
-```
-Sources/
-  OTifierLib/
-    OTPExtractor.swift         # OTP regex matching + keyword gating
-    ClipboardManager.swift     # Clipboard copy
-    Notifier.swift             # UNUserNotificationCenter notification display
-    NotificationWatcher.swift  # AX-based notification polling
-  OTifierApp/
-    OTifierApp.swift           # SwiftUI MenuBarExtra entry point
-    AppState.swift             # App state, monitoring lifecycle
-    OTifierMenu.swift          # Menu bar UI
-    AccessibilityDragPanel.swift # Codex-style drag-to-permission UI
-    Info.plist                 # App bundle metadata (LSUIElement, Sparkle keys)
-  otifier/
-    main.swift                 # CLI entry point
-  ax-explorer/
-    main.swift                 # AX tree diagnostic tool
-Tests/
-  OTifierLibTests/
-    OTPExtractorTests.swift    # OTP extraction test suite
-Vendor/
-  Sparkle/                     # Sparkle.framework + bin/ (not in git;
-                               # download from sparkle-project releases)
-Makefile                       # Build system (swiftc-based)
-```
+The CLI and AX explorer are handy when debugging why a particular notification
+isn't being captured — run `ax-explorer --watch 30` while a banner is on
+screen to inspect its Accessibility structure.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+[MIT](LICENSE).
 
 ## Acknowledgements
 
-Otifier embeds [Sparkle](https://sparkle-project.org) for in-app updates.
-Sparkle is © Andy Matuschak and the Sparkle Project, distributed under the
-MIT License (<https://github.com/sparkle-project/Sparkle/blob/2.x/LICENSE>).
+Otifier embeds [Sparkle](https://sparkle-project.org) for in-app updates,
+© Andy Matuschak and the Sparkle Project, distributed under the
+[MIT License](https://github.com/sparkle-project/Sparkle/blob/2.x/LICENSE).
