@@ -21,7 +21,7 @@ iPhone texts, Gmail OTPs, app notifications, etc.
 
 ## Prerequisites
 
-- macOS 13+ (Ventura or later)
+- macOS 13+ (Ventura or later) on Apple Silicon (M1 or later)
 - Xcode Command Line Tools (`xcode-select --install`)
 - Accessibility permission granted to the app
 - For building only: `Vendor/Sparkle/Sparkle.framework` and
