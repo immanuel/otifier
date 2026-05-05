@@ -171,3 +171,13 @@ Vendor/
                                # download from sparkle-project releases)
 Makefile                       # Build system (swiftc-based)
 ```
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+## Acknowledgements
+
+Otifier embeds [Sparkle](https://sparkle-project.org) for in-app updates.
+Sparkle is © Andy Matuschak and the Sparkle Project, distributed under the
+MIT License (<https://github.com/sparkle-project/Sparkle/blob/2.x/LICENSE>).
