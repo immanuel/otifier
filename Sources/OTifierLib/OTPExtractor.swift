@@ -7,7 +7,7 @@ import Foundation
 // keyword and the real OTP without breaking the match, while still rejecting
 // bare digits with no nearby OTP context.
 
-private let proximityChars = 30
+private let proximityChars = 60
 
 private let keywordRegex = try! NSRegularExpression(
     pattern: #"\b(?:code|otp|passcode|verification|2fa|mfa|verify|one[- ]?time|sign[- ]?in|auth(?:entication)?|login)\b|验证码|código|コード"#,
@@ -15,6 +15,15 @@ private let keywordRegex = try! NSRegularExpression(
 )
 
 private let candidateRegex = try! NSRegularExpression(pattern: #"\b\d{4,8}\b"#)
+
+// Words/symbols that, when they appear immediately before a digit run, mark it
+// as something other than an OTP — masked card/account tails ("ending: 43001"),
+// money ("$12481.16"), reference numbers, etc. Anchored at the end of the
+// candidate's local prefix so unrelated earlier text doesn't trigger it.
+private let candidatePrefixRejectRegex = try! NSRegularExpression(
+    pattern: #"(?:\bending(?:\s+in)?|\baccount(?:\s+(?:number|no\.?|#))?|\bcard|\border|\btracking|\binvoice|\bphone|\bzip|\bappointment|\bamount|[\$#])[^A-Za-z0-9]{0,5}$"#,
+    options: [.caseInsensitive]
+)
 
 private let googleStyleRegex = try! NSRegularExpression(pattern: #"\bG-(\d{4,8})\b"#)
 
@@ -62,6 +71,12 @@ public func extractOTP(from text: String) -> String? {
 
         let candStart = cand.range.location
         let candEnd = candStart + cand.range.length
+
+        let prefixLen = min(25, candStart)
+        let prefixRange = NSRange(location: candStart - prefixLen, length: prefixLen)
+        if candidatePrefixRejectRegex.firstMatch(in: text, options: [], range: prefixRange) != nil {
+            continue
+        }
         for kw in keywordRanges {
             let kwStart = kw.location
             let kwEnd = kwStart + kw.length

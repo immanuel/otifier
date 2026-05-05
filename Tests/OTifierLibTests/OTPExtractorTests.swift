@@ -52,6 +52,14 @@ func assertNil(_ actual: String?, file: String = #file, line: Int = #line) {
         // Realistic case: a code about an order is still an OTP.
         assertEqual(extractOTP(from: "Your verification code for order #99 is 871234"), "871234")
 
+        // Bank-style notification with a masked account tail and a transaction
+        // amount before the actual OTP — the extractor must skip "Account
+        // ending: NNNNN" and "$NN.NN" and pick the code after "is:".
+        assertEqual(
+            extractOTP(from: "Your Verification Code, Do not share this code with anyone Account ending: 54321 Below is your Verification Code for a $250.00 transaction at MERCHANT is: 871234 Thanks"),
+            "871234"
+        )
+
         // --- Should NOT extract: not an OTP at all ---
         assertEqual(extractOTP(from: "Your balance is 847291"), nil)
         assertNil(extractOTP(from: "Your verification code is 1111"))     // all-same
