@@ -6,6 +6,8 @@ SPARKLE_FRAMEWORK = $(SPARKLE_DIR)/Sparkle.framework
 SPARKLE_BIN = $(SPARKLE_DIR)/bin
 RELEASES_DIR = Releases
 
+DOWNLOAD_URL_PREFIX = https://otifier.com/downloads/
+
 LIB_SOURCES = Sources/OTifierLib/OTPExtractor.swift \
               Sources/OTifierLib/ClipboardManager.swift \
               Sources/OTifierLib/Notifier.swift \
@@ -148,6 +150,12 @@ staple-app:
 
 dmg: $(APP_BUNDLE) AppIcon.icns
 	@if [ -z "$(DEVELOPER_ID)" ]; then echo "ERROR: DEVELOPER_ID is not set."; exit 1; fi
+	@if codesign -dv $(APP_BUNDLE) 2>&1 | grep -q "Signature=adhoc"; then \
+		echo "ERROR: $(APP_BUNDLE) is ad-hoc signed (built with 'make app')."; \
+		echo "Run 'make release' first to produce a Developer ID-signed bundle,"; \
+		echo "or use 'make dist' for the full release pipeline."; \
+		exit 1; \
+	fi
 	@rm -f $(DMG)
 	@echo "Building $(DMG)..."
 	create-dmg \
@@ -186,7 +194,7 @@ appcast: check-sparkle
 	mkdir -p $(RELEASES_DIR); \
 	cp "$(DMG)" "$(RELEASES_DIR)/Otifier-$$VERSION.dmg"; \
 	echo "Copied to $(RELEASES_DIR)/Otifier-$$VERSION.dmg"
-	$(SPARKLE_BIN)/generate_appcast $(RELEASES_DIR)/
+	$(SPARKLE_BIN)/generate_appcast --download-url-prefix $(DOWNLOAD_URL_PREFIX) $(RELEASES_DIR)/
 	@echo ""
 	@echo "Appcast generated. Upload these to your host:"
 	@echo "  $(RELEASES_DIR)/appcast.xml"

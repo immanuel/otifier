@@ -24,9 +24,8 @@
   <string>Copyright © 2026 Immanuel Thomas. All rights reserved.</string>
   <key>SUPublicEDKey</key>
   <string>bQ4620xeCzR4tlM5CpUdrcZh6Nqd6JOYZdZl7Pd5gck=</string>
-  <!-- TODO: replace with real domain once site is live. -->
   <key>SUFeedURL</key>
-  <string>https://otifier.example.com/appcast.xml</string>
+  <string>https://otifier.com/appcast.xml</string>
   <key>SUEnableInstallerLauncherService</key>
   <true/>
   <key>SUScheduledCheckInterval</key>
