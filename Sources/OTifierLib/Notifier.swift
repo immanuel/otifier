@@ -31,10 +31,7 @@ func showNotification(otp: String, source: String) {
     center.getNotificationSettings { settings in
         switch settings.authorizationStatus {
         case .notDetermined:
-            center.requestAuthorization(options: [.alert, .sound]) { granted, error in
-                if let error {
-                    NSLog("Otifier: notification authorization error: \(error)")
-                }
+            center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
                 if granted {
                     deliver(otp: otp, source: source)
                 }
@@ -42,7 +39,7 @@ func showNotification(otp: String, source: String) {
         case .authorized, .provisional, .ephemeral:
             deliver(otp: otp, source: source)
         case .denied:
-            NSLog("Otifier: notifications denied — skipping banner for \(otp)")
+            break
         @unknown default:
             deliver(otp: otp, source: source)
         }
@@ -61,11 +58,7 @@ private func deliver(otp: String, source: String) {
         content: content,
         trigger: nil
     )
-    UNUserNotificationCenter.current().add(request) { error in
-        if let error {
-            NSLog("Otifier: failed to post notification: \(error)")
-        }
-    }
+    UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
 }
 
 private func showNotificationViaOsascript(otp: String, source: String) {

@@ -176,14 +176,10 @@ class AppState: ObservableObject {
     }
 
     func setLaunchAtLogin(_ enabled: Bool) {
-        do {
-            if enabled {
-                try SMAppService.mainApp.register()
-            } else {
-                try SMAppService.mainApp.unregister()
-            }
-        } catch {
-            NSLog("Otifier: failed to \(enabled ? "register" : "unregister") login item: \(error)")
+        if enabled {
+            try? SMAppService.mainApp.register()
+        } else {
+            try? SMAppService.mainApp.unregister()
         }
         refreshLaunchAtLoginStatus()
     }
