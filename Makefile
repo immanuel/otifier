@@ -16,8 +16,7 @@ LIB_SOURCES = Sources/OTifierLib/OTPExtractor.swift \
 APP_SOURCES = Sources/OTifierApp/OTifierApp.swift \
               Sources/OTifierApp/AppState.swift \
               Sources/OTifierApp/OTifierMenu.swift \
-              Sources/OTifierApp/AccessibilityDragPanel.swift \
-              Sources/OTifierApp/UpdaterController.swift
+              Sources/OTifierApp/AccessibilityDragPanel.swift
 
 BUILD_DIR = .build
 APP_BUNDLE = $(BUILD_DIR)/Otifier.app

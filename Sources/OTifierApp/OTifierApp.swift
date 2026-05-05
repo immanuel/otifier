@@ -1,13 +1,18 @@
+import Sparkle
 import SwiftUI
 
 @main
 struct OTifierApp: App {
     @StateObject private var appState = AppState()
-    @StateObject private var updater = UpdaterController()
+    private let updater = SPUStandardUpdaterController(
+        startingUpdater: true,
+        updaterDelegate: nil,
+        userDriverDelegate: nil
+    )
 
     var body: some Scene {
         MenuBarExtra {
-            OTifierMenu(state: appState, updater: updater)
+            OTifierMenu(state: appState)
         } label: {
             Image(systemName: "rectangle.and.pencil.and.ellipsis")
         }

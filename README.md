@@ -24,6 +24,10 @@ iPhone texts, Gmail OTPs, app notifications, etc.
 - macOS 13+ (Ventura or later)
 - Xcode Command Line Tools (`xcode-select --install`)
 - Accessibility permission granted to the app
+- For building only: `Vendor/Sparkle/Sparkle.framework` and
+  `Vendor/Sparkle/bin/` (download the Sparkle 2.x binary release from
+  <https://github.com/sparkle-project/Sparkle/releases>). End users do not
+  need this — the framework is embedded in the shipped app bundle.
 
 ## Build
 
@@ -50,7 +54,7 @@ open .build/Otifier.app
 
 On first launch, grant Accessibility permission when prompted.
 
-The app runs in the menu bar (key icon). Click it to see detected OTP codes
+The app runs in the menu bar (pencil icon). Click it to see detected OTP codes
 or check permission status.
 
 To launch on restart, add `Otifier.app` to your Login Items in System Settings.
@@ -64,6 +68,8 @@ To launch on restart, add `Otifier.app` to your Login Items in System Settings.
 - **Permission CTA** — shown when Accessibility permission is missing,
   with a button to open System Settings directly
 - **Launch on restart** — toggle to launch on restart
+
+The app also checks for updates automatically once a day via Sparkle.
 
 ## CLI tool
 
@@ -99,6 +105,45 @@ Matches codes via regex patterns with keyword gating:
 - **False positive filtering**: rejects repeated digits (1111), order/tracking
   numbers, codes shorter than 4 digits
 
+## Updates
+
+The app ships with [Sparkle 2.x](https://sparkle-project.org) embedded for
+in-app auto-updates.
+
+- **Feed**: `https://otifier.com/appcast.xml` (`SUFeedURL` in `Info.plist`)
+- **Background checks**: once per 24 hours (`SUScheduledCheckInterval`)
+  while the app is running.
+- **Signature verification**: every appcast item and downloaded DMG is
+  verified with EdDSA. The public key is pinned in `Info.plist`
+  (`SUPublicEDKey`); the matching private key lives only on the release
+  machine and is required to publish updates.
+- **Distribution**: signed, notarized, stapled DMGs are served from
+  `https://otifier.com/downloads/Otifier-<version>.dmg`.
+
+## Releasing
+
+End-to-end release flow (maintainer only — requires `DEVELOPER_ID` and a
+`otifier-notary` keychain profile for notarization):
+
+```bash
+# Build, sign, notarize, staple the .app, then package, notarize and
+# staple the DMG. Output: Otifier.dmg
+make dist
+
+# Copy the stapled DMG into Releases/ as Otifier-<version>.dmg and
+# regenerate Releases/appcast.xml using Sparkle's generate_appcast,
+# which signs each item with the EdDSA key paired with SUPublicEDKey.
+make appcast
+```
+
+Then upload `Releases/appcast.xml` and the new DMG to the host so they
+resolve at `https://otifier.com/appcast.xml` and
+`https://otifier.com/downloads/Otifier-<version>.dmg`.
+
+> Keep the Sparkle EdDSA private key safe. If it is lost, existing
+> installs can no longer accept updates and you will have to ship a new
+> app bundle (with a new public key) out-of-band.
+
 ## Project structure
 
 ```
@@ -112,7 +157,8 @@ Sources/
     OTifierApp.swift           # SwiftUI MenuBarExtra entry point
     AppState.swift             # App state, monitoring lifecycle
     OTifierMenu.swift          # Menu bar UI
-    Info.plist                 # App bundle metadata (LSUIElement)
+    AccessibilityDragPanel.swift # Codex-style drag-to-permission UI
+    Info.plist                 # App bundle metadata (LSUIElement, Sparkle keys)
   otifier/
     main.swift                 # CLI entry point
   ax-explorer/
@@ -120,5 +166,8 @@ Sources/
 Tests/
   OTifierLibTests/
     OTPExtractorTests.swift    # OTP extraction test suite
+Vendor/
+  Sparkle/                     # Sparkle.framework + bin/ (not in git;
+                               # download from sparkle-project releases)
 Makefile                       # Build system (swiftc-based)
 ```

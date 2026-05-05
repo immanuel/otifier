@@ -28,6 +28,8 @@
   <string>https://otifier.com/appcast.xml</string>
   <key>SUEnableInstallerLauncherService</key>
   <true/>
+  <key>SUEnableAutomaticChecks</key>
+  <true/>
   <key>SUScheduledCheckInterval</key>
   <integer>86400</integer>
 </dict>
