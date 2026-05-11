@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#F7F5F0" />
+<title>Otifier — copy verification codes from iPhone to Mac</title>
+<meta name="description" content="A tiny macOS menu-bar utility that watches notification banners and copies verification codes straight to your clipboard. Stays on your Mac. Works with anything mirrored from your iPhone." />
+
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="assets/img/icon-256.png" />
+
+<meta property="og:title" content="Otifier" />
+<meta property="og:description" content="Copy verification codes from iPhone to Mac — ready to paste." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://otifier.com/" />
+<meta property="og:image" content="assets/img/icon-256.png" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Geist:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="/" aria-label="Otifier home">
+    <img class="brand-mark" src="assets/img/icon-256.png" alt="" width="36" height="36" />
+    <span class="brand-name">Otifier</span>
+  </a>
+  <nav class="topnav">
+    <a class="topnav-link" href="https://github.com/immanuel/otifier">Source</a>
+    <a class="topnav-cta" href="/downloads/Otifier.dmg">
+      Download
+      <span class="topnav-cta-meta">macOS 13+</span>
+    </a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="eyebrow-dot"></span>macOS · menu&nbsp;bar utility</p>
+      <h1 id="hero-heading" class="display">
+        Copy verification codes<br />
+        from <em>iPhone</em> to Mac<span class="display-em-mark">.</span><br />
+        <span class="display-soft">Ready to paste.</span>
+      </h1>
+      <p class="sub">
+        Otifier watches macOS notification banners. The moment a code shows up,
+        it&rsquo;s already on your clipboard.
+      </p>
+      <div class="cta-row">
+        <a class="btn-primary" href="/downloads/Otifier.dmg">
+          <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 1v9.5m0 0L4.5 7M8 10.5L11.5 7M2 12.5v1A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5v-1" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Download for Mac
+        </a>
+        <a class="btn-ghost" href="https://github.com/immanuel/otifier">
+          View source
+          <svg class="btn-arrow" viewBox="0 0 12 12" aria-hidden="true">
+            <path d="M3 9L9 3M9 3H4.5M9 3v4.5" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+      <p class="cta-meta">Free &middot; MIT &middot; Apple Silicon</p>
+    </div>
+
+    <div class="hero-stage-wrap" aria-hidden="true">
+    <div class="hero-stage">
+      <!-- MAC stage: photo of the laptop with empty desktop, overlays positioned over the screen area -->
+      <div class="stage stage--mac">
+        <img class="device-img" src="assets/img/hero/mac.png" alt="" width="1512" height="982" />
+        <div class="mac-notifs">
+          <div class="banner banner--mac banner--img" data-banner="bank">
+            <span class="banner-img-frame">
+              <img src="assets/img/hero/bank_mac.png" alt="Bank Inc — Your verification code, now" />
+              <span class="mirror-badge" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="7.5" y="3" width="9" height="18" rx="2.2" stroke="currentColor" stroke-width="1.8" />
+                  <line x1="10.5" y1="18.5" x2="13.5" y2="18.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+              </span>
+            </span>
+          </div>
+          <div class="banner banner--mac banner--img" data-banner="otifier">
+            <span class="banner-img-frame">
+              <img src="assets/img/hero/otifier_mac.png" alt="Otifier — code copied, now" />
+            </span>
+          </div>
+        </div>
+
+        <!-- Cmd+V keyboard hint, fades in just before the code types -->
+        <div class="kbd-hint" aria-hidden="true">
+          <span class="kbd-key" data-key="cmd">⌘</span>
+          <span class="kbd-key" data-key="v">V</span>
+        </div>
+
+        <!-- Safari window (HTML — chrome + verification card) -->
+        <div class="safari">
+          <div class="safari-titlebar">
+            <div class="traffic">
+              <span class="dot dot--red"></span>
+              <span class="dot dot--yellow"></span>
+              <span class="dot dot--green"></span>
+            </div>
+            <div class="safari-url">
+              <span class="safari-url-text">Bank Checkout</span>
+            </div>
+            <div class="safari-titlebar-spacer"></div>
+          </div>
+          <div class="safari-body">
+            <div class="vcode-card" id="vcode-card">
+              <h3 class="vcode-title">Verification Code</h3>
+              <div class="vcode-cells">
+                <span class="vcode-cell" data-i="0"></span>
+                <span class="vcode-cell" data-i="1"></span>
+                <span class="vcode-cell" data-i="2"></span>
+                <span class="vcode-cell" data-i="3"></span>
+                <span class="vcode-cell" data-i="4"></span>
+              </div>
+              <div class="vcode-actions">
+                <button class="vcode-btn vcode-btn--cancel" type="button">Cancel</button>
+                <button class="vcode-btn vcode-btn--submit" type="button">Submit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHONE stage: photo of the iPhone with empty lockscreen, overlays positioned over the screen area -->
+      <div class="stage stage--phone">
+        <img class="device-img" src="assets/img/hero/phone.png" alt="" width="402" height="874" />
+        <div class="phone-notifs">
+          <div class="banner banner--phone banner--img" data-banner="bank">
+            <span class="banner-img-frame">
+              <img src="assets/img/hero/bank_phone.png" alt="Bank Inc — Your verification code, 9:41 AM" />
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="features">
+    <div class="features-inner">
+      <p class="section-eyebrow">Two things that matter</p>
+      <ul class="feature-list">
+        <li class="feature">
+          <div class="feature-num">01</div>
+          <div class="feature-body">
+            <h3 class="feature-title">Stays on your Mac</h3>
+            <p class="feature-text">
+              No network calls. No telemetry. No analytics. Codes are matched
+              and copied locally — they never leave your machine.
+            </p>
+          </div>
+        </li>
+        <li class="feature">
+          <div class="feature-num">02</div>
+          <div class="feature-body">
+            <h3 class="feature-title">Any mirrored notification</h3>
+            <p class="feature-text">
+              iMessage from your iPhone, email previews, app banners — anything
+              macOS surfaces as a notification, Otifier reads.
+            </p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="howit">
+    <div class="howit-inner">
+      <p class="section-eyebrow">How it works</p>
+      <ol class="howit-steps">
+        <li><span class="howit-num">1</span><span>iPhone receives a code via SMS, email or app push.</span></li>
+        <li><span class="howit-num">2</span><span>macOS mirrors the notification to your menu bar.</span></li>
+        <li><span class="howit-num">3</span><span>Otifier reads the banner and copies the code.</span></li>
+        <li><span class="howit-num">4</span><span>You hit <kbd>⌘V</kbd> wherever you needed it.</span></li>
+      </ol>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <div class="foot-brand">
+      <img src="assets/img/icon-256.png" alt="" width="20" height="20" />
+      <span>Otifier</span>
+    </div>
+    <div class="foot-links">
+      <a href="https://github.com/immanuel/otifier">GitHub</a>
+      <a href="https://github.com/immanuel/otifier/blob/main/LICENSE">MIT License</a>
+      <a href="/downloads/Otifier.dmg">Download</a>
+    </div>
+    <div class="foot-meta">
+      <span>Built on a quiet weekend.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/hero.js" defer></script>
+</body>
+</html>

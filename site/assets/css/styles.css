@@ -1,0 +1,998 @@
+/* ====================================================================
+   Otifier — landing page
+   Refined editorial: Instrument Serif display + Geist body + Geist Mono
+   ==================================================================== */
+
+:root {
+  --bg: #F7F5F0;
+  --bg-2: #EFEDE6;
+  --surface: #FFFFFF;
+  --ink: #0E0E10;
+  --ink-soft: #2A2A2E;
+  --muted: #6A6A70;
+  --muted-2: #8C8C92;
+  --rule: rgba(14, 14, 16, 0.08);
+  --rule-strong: rgba(14, 14, 16, 0.16);
+  --accent: #2D6BFF;
+  --accent-2: #1B4FE0;
+  --accent-soft: #E6EEFF;
+  --orange: #FF7A52;
+
+  /* macOS wallpaper palette */
+  --wall-1: #2C8FF0;
+  --wall-2: #6BBEEF;
+  --wall-3: #BFE3F4;
+  --wall-4: #E8F2F9;
+  --wall-deep: #114F8F;
+
+  /* iOS lock screen palette (more muted blue/teal) */
+  --lock-1: #5C8FA8;
+  --lock-2: #98B7C0;
+  --lock-3: #C7D6D1;
+  --lock-deep: #2E4F66;
+
+  --shadow-sm: 0 1px 2px rgba(14, 14, 16, 0.04);
+  --shadow-md: 0 8px 24px -6px rgba(14, 14, 16, 0.10), 0 2px 4px rgba(14, 14, 16, 0.04);
+  --shadow-lg: 0 36px 80px -24px rgba(14, 14, 16, 0.28), 0 12px 30px -12px rgba(14, 14, 16, 0.16);
+
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 22px;
+  --r-xl: 32px;
+
+  --font-display: "Instrument Serif", "Iowan Old Style", "Apple Garamond", Georgia, serif;
+  --font-body: "Geist", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* paper texture: very subtle SVG noise */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  mix-blend-mode: multiply;
+}
+
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+button { font: inherit; }
+
+/* ============== Layout primitives ============== */
+
+.topbar,
+.hero,
+.features-inner,
+.howit-inner,
+.foot-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-left: clamp(20px, 4vw, 56px);
+  padding-right: clamp(20px, 4vw, 56px);
+  position: relative;
+  z-index: 1;
+}
+
+/* ============== Topbar ============== */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  box-shadow: var(--shadow-sm);
+}
+
+.brand-name {
+  font-family: var(--font-display);
+  font-size: 26px;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  font-weight: 400;
+}
+
+.topnav {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.topnav-link {
+  color: var(--muted);
+  font-size: 14px;
+  letter-spacing: -0.005em;
+  transition: color 200ms ease;
+}
+.topnav-link:hover { color: var(--ink); }
+
+.topnav-cta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  transition: transform 200ms ease, background 200ms ease;
+}
+.topnav-cta:hover { background: #2A2A2E; transform: translateY(-1px); }
+
+.topnav-cta-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0;
+}
+
+/* ============== Hero ============== */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+  padding-top: clamp(40px, 6vw, 80px);
+  padding-bottom: clamp(48px, 8vw, 120px);
+}
+
+.hero-copy { max-width: 560px; }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 22px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.eyebrow-dot {
+  width: 6px; height: 6px; border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(45, 107, 255, 0.12);
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(38px, 5.6vw, 72px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--ink);
+}
+.display em {
+  font-style: italic;
+  color: var(--accent);
+}
+.display-em-mark { color: var(--accent); }
+.display-soft { color: var(--muted); font-style: italic; }
+
+.sub {
+  margin: 24px 0 32px;
+  font-size: clamp(16px, 1.2vw, 18px);
+  color: var(--ink-soft);
+  max-width: 480px;
+  line-height: 1.55;
+}
+
+.cta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--ink);
+  color: #fff;
+  padding: 14px 22px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.16) inset, 0 6px 16px -6px rgba(14, 14, 16, 0.45);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.16) inset, 0 10px 24px -6px rgba(14, 14, 16, 0.55);
+}
+.btn-icon { width: 16px; height: 16px; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--rule-strong);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  transition: background 200ms ease, border-color 200ms ease;
+}
+.btn-ghost:hover { background: rgba(14,14,16,0.04); border-color: rgba(14,14,16,0.28); }
+.btn-arrow { width: 11px; height: 11px; }
+
+.cta-meta {
+  margin: 18px 0 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted-2);
+  letter-spacing: 0.02em;
+}
+
+/* ============== Hero stage ============== */
+
+/* ─── Stage wrapper ────────────────────────────────────────────────────────
+   The hero illustration is laid out at a fixed reference size (1200×800)
+   inside `.hero-stage`. The wrapper `.hero-stage-wrap` is what actually
+   takes layout space; it uses `container-type: inline-size` so we can
+   scale the stage to fit using container query units (`cqw`).
+   No per-breakpoint .stage--mac / .stage--phone retuning needed —
+   everything inside the stage uses % of 1200×800 and scales as one unit.
+   To change the framing on small screens, just override `aspect-ratio`
+   (and optionally `--zoom-fit`) on the wrapper at a breakpoint.
+   ─────────────────────────────────────────────────────────────────────── */
+
+.hero-stage-wrap {
+  container-type: inline-size;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.hero-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1200px;
+  height: 1200px;
+  /* Fit the 1200-wide stage into whatever the wrapper's inline size is.
+     Dividing a length by a length yields a unitless ratio, which is what
+     `scale()` needs. Override --zoom on the wrapper at a breakpoint for
+     art-directed framing. */
+  --zoom: calc(100cqw / 1200px);
+  transform: scale(var(--zoom));
+  transform-origin: top left;
+}
+
+.stage { position: absolute; }
+
+/* The PNGs from Figma — Mac frame with wallpaper, Phone with lockscreen */
+.device-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* --- Mac stage ---
+   mac.png is the Figma export of the MacBook Pro hardware (~1929×1269, aspect 1.520).
+   The Figma frame 4:975 (1512×982) sits inside this with offset (209, 144) because
+   the laptop hardware extends beyond the frame. We re-map the frame-coord metadata
+   for notifications and Safari into the rendered image's coordinate space:
+     rendered_x% = (frame_x + 209) / 1929
+     rendered_y% = (frame_y + 144) / 1269 */
+.stage--mac {
+  right: 1%;
+  bottom: 0%;
+  width: 165%;
+  z-index: 1;
+}
+
+/* Mac mirrored notifications (top-right of the laptop screen).
+   Tuned empirically against the exported mac.png — the rendered image has
+   ~9% padding around the laptop hardware, and the laptop screen's right
+   edge sits at ~88.5% of image width. We bump width above the strict
+   Figma 1:1 (19.8%) so chip content stays legible at landing-page scale. */
+.mac-notifs {
+  position: absolute;
+  top: 14%;
+  right: 14%;
+  width: 28%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  z-index: 4;
+  /* Fixed px — stage transform handles responsive scaling. */
+  font-size: 13px;
+}
+
+/* Safari window (HTML chrome + verification card) */
+.safari {
+  position: absolute;
+  /* Figma frame (491, 256, 791×584) → rendered (36.3%, 31.5%, 41.0%×46.0%) */
+  left: 37%;
+  top: 33.5%;
+  width: 41.0%;
+  height: 40%;
+  border-radius: 12px;
+  background: #FFFFFF;
+  overflow: hidden;
+  box-shadow:
+    0 28px 60px -10px rgba(0,0,0,0.45),
+    0 6px 16px rgba(0,0,0,0.20),
+    inset 0 0 0 1px rgba(0,0,0,0.05);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  /* Fixed px sized for the 1200×1200 stage. The stage's `transform: scale`
+     handles responsive scaling — a vw-based clamp here would double-scale
+     and break parity between breakpoints. */
+  font-size: 22px;
+}
+
+.safari-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  padding: 0.6em 0.8em;
+  background: linear-gradient(to bottom, rgba(247,247,250,0.95), rgba(238,238,242,0.95));
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  color: rgba(0,0,0,0.55);
+  flex-shrink: 0;
+}
+
+.traffic { display: flex; gap: 0.45em; padding: 0 0.2em; }
+.dot {
+  width: 0.95em; height: 0.95em;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.12);
+}
+.dot--red { background: #FF5F57; }
+.dot--yellow { background: #FEBC2E; }
+.dot--green { background: #28C840; }
+
+.safari-url {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  padding: 0.45em 0.8em;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.05);
+  color: rgba(0,0,0,0.85);
+}
+.safari-url-text {
+  font-weight: 500;
+  font-size: 0.9em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.safari-titlebar-spacer { width: 1.5em; flex-shrink: 0; }
+
+/* ============== Keyboard hint (Cmd+V) ============== */
+/* Sits inside .stage--mac (uses % of mac canvas) so it scales with the
+   rest of the hero. Positioned just above the safari window, centered
+   on it. Inspired by macOS's on-screen virtual keys: dark inset chip
+   with top highlight, bottom shadow, soft drop-shadow underneath. */
+.kbd-hint {
+  position: absolute;
+  /* Safari sits at left:36.3% width:41% → horizontal center 56.8%.
+     Place keys above safari top (31.5%) at 22%. */
+  left: 56.8%;
+  bottom: 22%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.45em;
+  z-index: 6;
+  opacity: 0;
+  transition: opacity 240ms ease;
+  pointer-events: none;
+  /* Fixed px — stage transform handles responsive scaling. */
+  font-size: 22px;
+}
+.kbd-hint.is-in { opacity: 1; }
+
+.kbd-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5em;
+  height: 2.5em;
+  padding: 0 0.5em;
+  background: linear-gradient(to bottom, #3a3a3c, #1f1f21);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 2em;
+  font-weight: 500;
+  border-radius: 0.4em;
+  letter-spacing: 0.01em;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.16) inset,    /* top highlight */
+    0 -1px 0 rgba(0, 0, 0, 0.55) inset,         /* bottom rim */
+    0 0 0 0.5px rgba(0, 0, 0, 0.65),            /* hairline edge */
+    0 10px 22px -4px rgba(0, 0, 0, 0.45),
+    0 3px 8px rgba(0, 0, 0, 0.32);
+  transform-origin: center;
+}
+.kbd-key.is-pressed { animation: kbd-press 240ms ease; }
+@keyframes kbd-press {
+  0%   { transform: translateY(0)   scale(1);    box-shadow: 0 1px 0 rgba(255,255,255,0.16) inset, 0 -1px 0 rgba(0,0,0,0.55) inset, 0 0 0 0.5px rgba(0,0,0,0.65), 0 10px 22px -4px rgba(0,0,0,0.45), 0 3px 8px rgba(0,0,0,0.32); }
+  40%  { transform: translateY(2px) scale(0.95); box-shadow: 0 1px 0 rgba(255,255,255,0.16) inset, 0 -1px 0 rgba(0,0,0,0.55) inset, 0 0 0 0.5px rgba(0,0,0,0.65), 0 4px 10px -2px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.20); }
+  100% { transform: translateY(0)   scale(1);    box-shadow: 0 1px 0 rgba(255,255,255,0.16) inset, 0 -1px 0 rgba(0,0,0,0.55) inset, 0 0 0 0.5px rgba(0,0,0,0.65), 0 10px 22px -4px rgba(0,0,0,0.45), 0 3px 8px rgba(0,0,0,0.32); }
+}
+
+.safari-body {
+  flex: 1;
+  padding: 1.2em 0.6em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  min-height: 0;
+}
+
+.vcode-card {
+  width: 88%;
+  background: #F2F2F4;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 0.7em;
+  padding: 2em;
+  text-align: center;
+  transition: box-shadow 400ms ease, border-color 400ms ease;
+}
+
+.vcode-card.is-success {
+  border-color: rgba(36, 174, 88, 0.55);
+  box-shadow: 0 0 0 4px rgba(36, 174, 88, 0.12);
+}
+
+.vcode-title {
+  margin: 0 0 1.2em;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 1em;
+  letter-spacing: -0.01em;
+  color: #18181B;
+  white-space: nowrap;
+}
+
+.vcode-cells {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.35em;
+  margin-bottom: 1em;
+}
+
+.vcode-cell {
+  /* Drop the square aspect-ratio: cells were sized by their (large) grid
+     width, which forced their height up and made the digit look small.
+     Now padding drives the height — the digit dominates the cell.
+     min-height keeps the cell at the filled-state size even when empty
+     so cells don't visibly squish before the code types in. */
+  padding: 0.35em 0;
+  min-height: 1.8em;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 0.4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 1.5em;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.1;
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+.vcode-cell.is-typed {
+  animation: cell-pop 280ms ease;
+  border-color: rgba(45,107,255,0.45);
+}
+@keyframes cell-pop {
+  0%   { transform: scale(0.92); }
+  60%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+.vcode-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6em;
+}
+
+.vcode-btn {
+  border: 0;
+  padding: 0.65em 0;
+  border-radius: 0.5em;
+  font-family: var(--font-body);
+  font-size: 0.95em;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+}
+.vcode-btn--cancel {
+  background: #D1D1D5;
+  color: #18181B;
+}
+.vcode-btn--submit {
+  background: linear-gradient(to bottom, #2D7CFF, #1F65E8);
+  color: #fff;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.18) inset, 0 1px 2px rgba(0,0,0,0.18);
+}
+
+/* ============== Notification banners ============== */
+/* macOS / iOS "Liquid Glass" notification.
+   Values transcribed from the Figma "Bank Notification mac" component:
+     - Fill + Shadow: rgba(245,245,245,0.67) over #262626 (color-dodge),
+       box-shadow: 0 8px 40px rgba(0,0,0,0.12), border-radius 16px
+     - Glass Effect overlay: rgba(0,0,0,0.2) blended with screen
+     - Padding 12 13 12 9 (top right bottom left), gap 13
+     - Icon 32×32, Title+Description 280×32 (each line 16, font 13)
+     - Title 13/16 weight 700 letter-spacing -0.02em
+     - Description 13/16 weight 400 letter-spacing -0.008em
+     - Timestamp 11/14 weight 400 color #BFBFBF
+   We rescale to em so the chip stays sized to its container, and add
+   `backdrop-filter: blur` so the frosted effect responds to the live
+   wallpaper underneath (Figma's component is a flat composite). */
+
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1em;                                      /* 13/13 — Figma exact */
+  padding: 0.923em 0.692em 0.923em 1em;          /* 12 9 12 13 / 13 — Figma exact */
+  border-radius: 1.85em;                         /* 24/13 */
+  position: relative;
+  isolation: isolate;
+  /* Updated Figma "Liquid Glass": single 7% white wash with screen blend */
+  background: rgba(255, 255, 255, 0.07);
+  background-blend-mode: screen;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+  /* Live frosted blur. Figma's glass components include a gaussian blur +
+     brightness boost in their renderer that don't export as CSS — we
+     reproduce that here. Lower blur preserves wallpaper detail through
+     the glass; brightness lifts the chip off the wallpaper. */
+  backdrop-filter: blur(18px) saturate(180%) brightness(1.08);
+  -webkit-backdrop-filter: blur(18px) saturate(180%) brightness(1.08);
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "SF Pro Text",
+               "Helvetica Neue", system-ui, sans-serif;
+  color: rgba(0, 0, 0, 0.85);
+  /* 13px is the Figma title/description size. Fixed px — stage transform
+     handles responsive scaling. */
+  font-size: 13px;
+}
+
+.banner-icon {
+  width: 2.46em;       /* 32/13 */
+  height: 2.46em;
+  flex-shrink: 0;
+  /* The SVG icons are self-shaped (squircle + own shadow baked in). */
+}
+
+/* Single-image variant: the whole notification chip is one PNG that already
+   includes the glass, icon, text, and timestamp. Strip all the styling
+   .banner provides so the image renders unmodified.
+   Tweak --notif-zoom on .banner--img to scale the image up to crop out
+   transparent padding around the notification artwork. 1 = native, 1.2
+   crops 10% off each side, etc. */
+.banner--img {
+  display: block;
+  padding: 0;
+  gap: 0;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  isolation: auto;
+}
+/* Per-device zoom — phone PNG has tighter padding, mac PNG has more. */
+.phone-notifs .banner--img { --notif-zoom: 1.13; }
+.mac-notifs   .banner--img { --notif-zoom: 1.4;  }
+
+/* Mac PNGs have a lot of transparent padding top/bottom around the actual
+   notification content, which makes the two stacked chips look too far
+   apart. Shrink the layout-box height so the next chip is pulled up —
+   the image itself (sized by --notif-zoom) overflows visibly. Tweak this
+   one value to bring chips closer or push them apart. */
+.mac-notifs .banner--img { height: 8em; }
+
+/* Frame wraps the PNG (and any overlays like .mirror-badge). The scale
+   transform lives on the frame so overlays scale together with the PNG. */
+.banner-img-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  transform: scale(var(--notif-zoom));
+  transform-origin: center;
+}
+.banner-img-frame > img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* iPhone-mirroring badge: small circular pill in the bottom-right of the
+   notification's app icon, mirroring what macOS shows for notifications
+   that originated on the iPhone. Tune left/top/width to align with the
+   icon position inside your PNG. */
+.mirror-badge {
+  position: absolute;
+  left: var(--badge-x, 17%);
+  top: var(--badge-y, 49%);
+  width: var(--badge-size, 3%);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #E8E8EA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1c1c1e;
+  box-shadow:
+    0 0 0 1.5px rgba(255, 255, 255, 0.9),
+    0 1px 2px rgba(0, 0, 0, 0.18);
+  z-index: 2;
+}
+.mirror-badge svg {
+  width: 80%;
+  height: 80%;
+  display: block;
+}
+.banner-icon svg,
+.banner-icon img { width: 100%; height: 100%; display: block; }
+
+/* Body holds Title + Description. Right-side holds Timestamp.
+   Matches Figma "Bank Notification mac" component structure exactly:
+   Icon | Title+Description | Right Side */
+.banner-body {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.banner-right {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  align-self: flex-start;
+}
+
+.banner-title {
+  font-weight: 700;
+  font-size: 1em;                /* 13px */
+  line-height: 1.23;             /* 16/13 */
+  letter-spacing: -0.02em;
+  color: rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.banner-time {
+  font-weight: 400;
+  font-size: 0.846em;            /* 11/13 */
+  line-height: 1.27;             /* 14/11 */
+  color: #BFBFBF;
+  text-align: right;
+  white-space: nowrap;
+  /* mix-blend-mode: plus-darker;  Figma uses this; recent Chrome/Safari only.
+     Skipping for broader compatibility — color #BFBFBF reads close enough. */
+}
+
+.banner-text {
+  font-weight: 400;
+  font-size: 1em;                /* 13px — same as title per Figma */
+  line-height: 1.23;
+  letter-spacing: -0.008em;
+  color: rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============== Phone stage ============== */
+
+/* phone.png is the Figma export of the iPhone (~900×1840, aspect 0.489).
+   Original frame 6:379 is 402×874 (aspect 0.460); export adds slight bottom
+   overflow (drop shadow). Notification coords stay close to frame %. */
+.stage--phone {
+  right: 0%;
+  bottom: -25.5%;
+  width: 44%;
+  z-index: 2;
+}
+
+.phone-notifs {
+  position: absolute;
+  /* Figma: bank notif x=12,y=213,w=386,h=64 inside 402×874.
+     Phone PNG export adds ~2% padding around bezel so we inset slightly more. */
+  left: 4%;
+  right: 4%;
+  top: 25%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  z-index: 4;
+  /* Fixed px — stage transform handles responsive scaling. */
+  font-size: 13px;
+}
+
+/* ============== Reveal animations ============== */
+
+.banner {
+  /* default ON state — animation hooks override at start */
+}
+
+/* JS-controlled phases — banners + cells start hidden when .anim is on */
+.anim .banner {
+  opacity: 0;
+  transform: translateY(-12px) scale(0.96);
+  transition: opacity 380ms cubic-bezier(.16,.84,.32,1), transform 380ms cubic-bezier(.16,.84,.32,1);
+}
+.anim .banner--mac {
+  transform: translateX(20%) scale(0.94);
+}
+.anim .banner.is-in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.anim .banner--mac.is-in {
+  transform: translateX(0) scale(1);
+}
+
+.anim .vcode-cell { color: transparent; }
+.anim .vcode-cell.is-typed { color: var(--ink); }
+
+/* Hero load reveal (initial entrance for entire hero) */
+@keyframes lift {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-copy > * { animation: lift 700ms cubic-bezier(.16,.84,.32,1) backwards; }
+.hero-copy .eyebrow   { animation-delay: 80ms; }
+.hero-copy .display   { animation-delay: 160ms; }
+.hero-copy .sub       { animation-delay: 280ms; }
+.hero-copy .cta-row   { animation-delay: 380ms; }
+.hero-copy .cta-meta  { animation-delay: 460ms; }
+
+.hero-stage-wrap { animation: lift 900ms cubic-bezier(.16,.84,.32,1) 280ms backwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-copy > *, .hero-stage-wrap { animation: none !important; }
+}
+
+/* ============== Rule + sections ============== */
+
+.rule {
+  border: 0;
+  height: 1px;
+  background: var(--rule);
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.section-eyebrow {
+  display: inline-block;
+  margin: 0 0 28px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+/* ============== Features ============== */
+
+.features {
+  padding-top: clamp(60px, 8vw, 110px);
+  padding-bottom: clamp(60px, 8vw, 110px);
+}
+
+.feature-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 4vw, 64px);
+}
+
+.feature {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.feature-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--muted-2);
+  padding-top: 6px;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.feature-title {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 2.2vw, 32px);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.feature-text {
+  margin: 0;
+  font-size: 16px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  max-width: 42ch;
+}
+
+/* ============== How it works ============== */
+
+.howit {
+  padding-top: clamp(60px, 8vw, 110px);
+  padding-bottom: clamp(80px, 10vw, 140px);
+}
+
+.howit-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(20px, 3vw, 40px);
+  counter-reset: howit;
+}
+
+.howit-steps li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: 16px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.howit-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+}
+
+kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--rule-strong);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+/* ============== Footer ============== */
+
+.foot {
+  border-top: 1px solid var(--rule);
+  padding: 32px 0 48px;
+}
+.foot-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.foot-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--ink);
+}
+.foot-links {
+  display: flex;
+  gap: 22px;
+}
+.foot-links a:hover { color: var(--ink); }
+.foot-meta { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em; }
+
+/* ============== Responsive ============== */
+
+@media (max-width: 1023px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding-top: 32px;
+  }
+  .hero-stage-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .feature-list { grid-template-columns: 1fr; }
+  .howit-steps { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .topbar { padding: 16px 0; }
+  .brand-name { font-size: 22px; }
+  .brand-mark { width: 30px; height: 30px; }
+  .topnav-cta-meta { display: none; }
+  .topnav-link { display: none; }
+
+  .hero {
+    padding-top: 20px;
+    padding-bottom: 56px;
+  }
+  .display { font-size: clamp(34px, 9vw, 44px); }
+  .sub { font-size: 15px; }
+
+  .cta-row { flex-direction: column; align-items: stretch; }
+  .btn-primary, .btn-ghost { justify-content: center; width: 100%; }
+
+  /* No more per-device retuning — the whole stage scales as one unit
+     via container queries. Adjust the wrapper's aspect-ratio if you want
+     a different framing on small screens. */
+
+  .feature { grid-template-columns: 40px 1fr; gap: 12px; }
+  .feature-title { font-size: 22px; }
+
+  .howit-steps { grid-template-columns: 1fr; }
+  .foot-inner { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 380px) {
+  .display { font-size: 30px; }
+}

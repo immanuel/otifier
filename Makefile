@@ -31,7 +31,7 @@ NOTARY_PROFILE = otifier-notary
 
 .PHONY: all clean otifier ax-explorer app release verify test \
         notarize-app staple-app dmg notarize-dmg staple-dmg dist \
-        check-sparkle sign-sparkle appcast
+        check-sparkle sign-sparkle appcast site
 
 all: otifier ax-explorer
 
@@ -203,6 +203,21 @@ appcast: check-sparkle
 	@echo "Appcast generated. Upload these to your host:"
 	@echo "  $(RELEASES_DIR)/appcast.xml"
 	@ls $(RELEASES_DIR)/*.dmg | sed 's/^/  /'
+
+# Stage the otifier.com landing site for nginx upload. Copies the latest
+# versioned DMG from $(RELEASES_DIR) into site/downloads/Otifier.dmg so the
+# stable download CTA on the site keeps working without per-release edits.
+site:
+	@mkdir -p site/downloads
+	@LATEST_DMG=$$(ls -t $(RELEASES_DIR)/Otifier-*.dmg 2>/dev/null | head -n 1); \
+	if [ -z "$$LATEST_DMG" ]; then \
+	  echo "ERROR: no Otifier-*.dmg in $(RELEASES_DIR)/ — run 'make appcast' first."; \
+	  exit 1; \
+	fi; \
+	cp "$$LATEST_DMG" site/downloads/Otifier.dmg; \
+	cp $(RELEASES_DIR)/appcast.xml site/downloads/appcast.xml 2>/dev/null || true; \
+	echo "Staged: $$LATEST_DMG -> site/downloads/Otifier.dmg"
+	@echo "Site ready in ./site — upload to nginx web root."
 
 test: $(BUILD_DIR)/test-runner
 	$(BUILD_DIR)/test-runner
