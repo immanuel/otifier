@@ -1,6 +1,6 @@
  <div align="center">
 
-<img src="docs/icon_256x256.png" alt="Otifier" width="128" height="128" />
+<img src="site/assets/img/icon-256.png" alt="Otifier" width="128" height="128" />
 
 # Otifier
 
@@ -22,16 +22,16 @@ email previews, app push notifications, etc.
 
 ## Demo
 
-<!-- [PLACEHOLDER: record a short GIF (notification arrives → code auto-copied → pasted into a login form) and save as docs/demo.gif] -->
-<!-- ![Otifier demo](docs/demo.gif) -->
+<p align="center">
+  <img src="site/assets/img/demo.gif" alt="Otifier demo — verification code arrives in a notification banner and is auto-copied to the clipboard" width="720" />
+</p>
 
 ## Features
 
+- **100% local** — no network calls, no telemetry, codes never leave your Mac
 - **Just works** — no setup beyond granting Accessibility permission once
 - **Universal** — any macOS notification banner, including mirrored iPhone texts
-- **Instant** — code lands on your clipboard the moment the banner appears
 - **History** — recent codes in the menu bar; click any one to re-copy
-- **100% local** — no network calls, no telemetry, codes never leave your Mac
 
 ## Install
 
