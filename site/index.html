@@ -3,11 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#F7F5F0" />
+<meta name="theme-color" content="#FBFBFA" />
 <title>Otifier — copy verification codes from iPhone to Mac</title>
 <meta name="description" content="A tiny macOS menu-bar utility that watches notification banners and copies verification codes straight to your clipboard. Stays on your Mac. Works with anything mirrored from your iPhone." />
 
-<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png" />
+<link rel="icon" type="image/png" sizes="64x64" href="assets/img/favicon-64.png" />
 <link rel="apple-touch-icon" href="assets/img/icon-256.png" />
 
 <meta property="og:title" content="Otifier" />
@@ -19,7 +21,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Geist:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..600&display=swap" rel="stylesheet" />
 
 <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
@@ -42,15 +44,13 @@
 <main>
   <section class="hero" aria-labelledby="hero-heading">
     <div class="hero-copy">
-      <p class="eyebrow"><span class="eyebrow-dot"></span>macOS · menu&nbsp;bar utility</p>
+      <p class="eyebrow"><span class="eyebrow-dot"></span>macOS · Local · Free</p>
       <h1 id="hero-heading" class="display">
-        Copy verification codes<br />
-        from <em>iPhone</em> to Mac<span class="display-em-mark">.</span><br />
-        <span class="display-soft">Ready to paste.</span>
+        Auto-copy verification codes<br />
+        from <em>iPhone</em> to Mac<span class="display-em-mark">.</span>
       </h1>
       <p class="sub">
-        Otifier watches macOS notification banners. The moment a code shows up,
-        it&rsquo;s already on your clipboard.
+        Otifier watches macOS notification banners and copies any verification code straight to your clipboard — including ones mirrored from your iPhone.
       </p>
       <div class="cta-row">
         <a class="btn-primary" href="/downloads/Otifier.dmg">
@@ -66,7 +66,6 @@
           </svg>
         </a>
       </div>
-      <p class="cta-meta">Free &middot; MIT &middot; Apple Silicon</p>
     </div>
 
     <div class="hero-stage-wrap" aria-hidden="true">
@@ -146,16 +145,13 @@
     </div>
   </section>
 
-  <hr class="rule" />
-
   <section class="features">
     <div class="features-inner">
-      <p class="section-eyebrow">Two things that matter</p>
       <ul class="feature-list">
         <li class="feature">
-          <div class="feature-num">01</div>
+          <div class="feature-num" aria-hidden="true"></div>
           <div class="feature-body">
-            <h3 class="feature-title">Stays on your Mac</h3>
+            <h3 class="feature-title">Data stays on your Mac</h3>
             <p class="feature-text">
               No network calls. No telemetry. No analytics. Codes are matched
               and copied locally — they never leave your machine.
@@ -163,7 +159,7 @@
           </div>
         </li>
         <li class="feature">
-          <div class="feature-num">02</div>
+          <div class="feature-num" aria-hidden="true"></div>
           <div class="feature-body">
             <h3 class="feature-title">Any mirrored notification</h3>
             <p class="feature-text">
@@ -176,16 +172,50 @@
     </div>
   </section>
 
-  <hr class="rule" />
-
   <section class="howit">
     <div class="howit-inner">
-      <p class="section-eyebrow">How it works</p>
+      <p class="section-eyebrow">Get started</p>
       <ol class="howit-steps">
-        <li><span class="howit-num">1</span><span>iPhone receives a code via SMS, email or app push.</span></li>
-        <li><span class="howit-num">2</span><span>macOS mirrors the notification to your menu bar.</span></li>
-        <li><span class="howit-num">3</span><span>Otifier reads the banner and copies the code.</span></li>
-        <li><span class="howit-num">4</span><span>You hit <kbd>⌘V</kbd> wherever you needed it.</span></li>
+        <li class="step">
+          <div class="step-num">01</div>
+          <div class="step-body">
+            <h3 class="step-title">Mirror your iPhone notifications to your Mac</h3>
+            <p class="step-text">
+              Otifier reads codes from macOS notification banners, so iPhone
+              notifications need to be forwarded to your Mac first.
+              <a class="step-link" href="https://support.apple.com/en-us/120684" target="_blank" rel="noopener">See Apple&rsquo;s setup guide</a>.
+            </p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">02</div>
+          <div class="step-body">
+            <h3 class="step-title">Install Otifier</h3>
+            <p class="step-text">
+              Download the DMG, open it, and drag Otifier to your Applications folder.
+            </p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">03</div>
+          <div class="step-body">
+            <h3 class="step-title">Grant Accessibility permission</h3>
+            <p class="step-text">
+              Launch Otifier from Applications. macOS will prompt for Accessibility
+              access &mdash; this is how Otifier reads notification banners. Approve it once and you&rsquo;re done.
+            </p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">04</div>
+          <div class="step-body">
+            <h3 class="step-title">Paste anywhere</h3>
+            <p class="step-text">
+              When a verification code arrives, Otifier copies it to your clipboard
+              and shows a small confirmation. Hit <kbd>⌘V</kbd> wherever you need it.
+            </p>
+          </div>
+        </li>
       </ol>
     </div>
   </section>
@@ -199,11 +229,7 @@
     </div>
     <div class="foot-links">
       <a href="https://github.com/immanuel/otifier">GitHub</a>
-      <a href="https://github.com/immanuel/otifier/blob/main/LICENSE">MIT License</a>
       <a href="/downloads/Otifier.dmg">Download</a>
-    </div>
-    <div class="foot-meta">
-      <span>Built on a quiet weekend.</span>
     </div>
   </div>
 </footer>
