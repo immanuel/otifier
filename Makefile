@@ -215,7 +215,7 @@ site:
 	  exit 1; \
 	fi; \
 	cp "$$LATEST_DMG" site/downloads/Otifier.dmg; \
-	cp $(RELEASES_DIR)/appcast.xml site/downloads/appcast.xml 2>/dev/null || true; \
+	cp $(RELEASES_DIR)/appcast.xml site/appcast.xml 2>/dev/null || true; \
 	echo "Staged: $$LATEST_DMG -> site/downloads/Otifier.dmg"
 	@echo "Site ready in ./site — upload to nginx web root."
 
