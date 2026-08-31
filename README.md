@@ -32,6 +32,12 @@ email previews, app push notifications, etc.
 - **Just works** — no setup beyond granting Accessibility permission once
 - **Universal** — any macOS notification banner, including mirrored iPhone texts
 - **History** — recent codes in the menu bar; click any one to re-copy
+- **Fallback tools** — choose a code candidate from a recently unrecognized
+  notification
+- **Editable keywords** — review, add, or remove active recognition keywords and
+  reset the whole list to the project defaults at any time
+- **Multilingual menu** — switch between English, Simplified Chinese,
+  Traditional Chinese, Japanese, Korean, Spanish, French, and German
 
 ## Install
 
@@ -60,22 +66,26 @@ open .build/Otifier.app
 
 ```
 iPhone notification → mirrored to Mac → notification banner
-    → AX tree poll (1.5s) → verification code match → clipboard
+    → AX change event → verification code match → clipboard
 ```
 
-Otifier polls the Notification Center's Accessibility tree every 1.5 seconds.
-When a banner contains a verification code, it copies the code and shows a
-small confirmation notification.
+Otifier listens for changes to Notification Center's Accessibility tree. A
+lightweight window-state check is used as a compatibility fallback. When a
+banner contains a verification code, it copies the code and shows a small
+confirmation notification.
 
 <details>
 <summary>Detection rules</summary>
 
 OTPs are matched via regex with keyword gating to avoid false positives:
 
-- **Patterns**: `code: 123456`, `OTP: 1234`, `G-583920`, bare 4–8 digit codes
-- **Keywords**: verification, code, OTP, one-time, 2FA, sign in, 验证码, …
+- **Patterns**: `code: 123456`, `OTP: 1234`, `G-583920`, `583 920`, `583-920`
+- **Keywords**: verification, code, OTP, one-time, 2FA, sign in, 验证码,
+  动态口令, 短信码, 安全码, …
 - **Filtering**: rejects repeated digits (`1111`), order/tracking numbers,
   codes shorter than 4 digits
+- **Extensibility**: edit the keyword list from the menu; automatic extraction
+  remains context-gated, and unmatched candidates can be selected manually
 
 </details>
 

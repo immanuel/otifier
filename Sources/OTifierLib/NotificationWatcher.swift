@@ -89,8 +89,9 @@ final class NotificationWatcher: @unchecked Sendable {
     private var observedPID: pid_t?
     private var isRunning = false
     private var scanGate = NotificationScanGate()
-    private var lastSeenTexts: [String] = []
+    private var recentlySeenTextHashes: [Int: Date] = [:]
     private var lastPermissionCheck = Date.distantPast
+    private var keywords = defaultOTPKeywords
 
     private let maxCacheSize = 50
     private let permissionCheckInterval: TimeInterval = 10
@@ -98,6 +99,10 @@ final class NotificationWatcher: @unchecked Sendable {
     private let maxElementsPerScan = 250
 
     var onOTPDetected: ((String, String) -> Void)?  // (otp, sourceText)
+    /// Reports notifications that contain numeric candidates but do not match an
+    /// automatic extraction rule. The app keeps these in memory only so the user
+    /// can copy a candidate or teach Otifier a keyword.
+    var onUnrecognizedText: ((String, [String]) -> Void)?
     /// Called once if Accessibility permission is revoked while running.
     /// The watcher stops itself before invoking this.
     var onAXPermissionLost: (() -> Void)?
@@ -123,6 +128,12 @@ final class NotificationWatcher: @unchecked Sendable {
     func stop() {
         workerQueue.async { [weak self] in
             self?.stopOnWorkerQueue()
+        }
+    }
+
+    func updateKeywords(_ keywords: [String]) {
+        workerQueue.async { [weak self] in
+            self?.keywords = keywords
         }
     }
 
@@ -299,20 +310,33 @@ final class NotificationWatcher: @unchecked Sendable {
 
     private func performNotificationScan() {
         guard let application = observedApplication else { return }
-        let texts = getNotificationTexts(from: application)
-        guard !texts.isEmpty else { return }
+        let textGroups = getNotificationTextGroups(from: application)
+        guard !textGroups.isEmpty else { return }
 
-        let combined = texts.joined(separator: " | ")
-        guard !lastSeenTexts.contains(combined) else { return }
+        for texts in textGroups {
+            let combined = texts.joined(separator: " | ")
+            let combinedHash = combined.hashValue
+            let now = Date()
+            recentlySeenTextHashes = recentlySeenTextHashes.filter {
+                now.timeIntervalSince($0.value) < 120
+            }
+            guard recentlySeenTextHashes[combinedHash] == nil else { continue }
 
-        lastSeenTexts.append(combined)
-        if lastSeenTexts.count > maxCacheSize {
-            lastSeenTexts.removeFirst()
-        }
+            recentlySeenTextHashes[combinedHash] = now
+            if recentlySeenTextHashes.count > maxCacheSize,
+               let oldest = recentlySeenTextHashes.min(by: { $0.value < $1.value })?.key {
+                recentlySeenTextHashes.removeValue(forKey: oldest)
+            }
 
-        let fullText = texts.joined(separator: " ")
-        if let otp = extractOTP(from: fullText) {
-            onOTPDetected?(otp, fullText)
+            let fullText = texts.joined(separator: " ")
+            if let otp = extractOTP(from: fullText, keywords: keywords) {
+                onOTPDetected?(otp, fullText)
+            } else {
+                let candidates = extractOTPCandidates(from: fullText)
+                if !candidates.isEmpty {
+                    onUnrecognizedText?(fullText, candidates)
+                }
+            }
         }
     }
 
@@ -371,25 +395,29 @@ final class NotificationWatcher: @unchecked Sendable {
         return value as? [AXUIElement] ?? []
     }
 
-    private func getNotificationTexts(from application: AXUIElement) -> [String] {
-        var allTexts: [String] = []
+    private func getNotificationTextGroups(from application: AXUIElement) -> [[String]] {
+        var groups: [[String]] = []
 
         // Banners are windows on most macOS releases. Scan windows first so the
-        // node budget is spent on the most likely notification content.
+        // node budget is spent on the most likely notification content. Keep
+        // each window separate so unrelated notification text cannot suppress or
+        // influence another notification's extraction result.
         for window in children(of: application, attribute: kAXWindowsAttribute as CFString) {
-            allTexts.append(contentsOf: collectTexts(from: window, maxDepth: maxTreeDepth))
+            let texts = collectTexts(from: window, maxDepth: maxTreeDepth)
+            if !texts.isEmpty { groups.append(texts) }
         }
 
         // On newer releases banners may instead appear as direct children.
-        if allTexts.isEmpty {
+        if groups.isEmpty {
             for child in children(of: application, attribute: kAXChildrenAttribute as CFString) {
                 var roleValue: AnyObject?
                 _ = AXUIElementCopyAttributeValue(child, kAXRoleAttribute as CFString, &roleValue)
                 if let role = roleValue as? String, role == "AXMenuBar" { continue }
-                allTexts.append(contentsOf: collectTexts(from: child, maxDepth: min(maxTreeDepth, 10)))
+                let texts = collectTexts(from: child, maxDepth: min(maxTreeDepth, 10))
+                if !texts.isEmpty { groups.append(texts) }
             }
         }
 
-        return allTexts
+        return groups
     }
 }

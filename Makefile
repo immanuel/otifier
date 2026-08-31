@@ -16,7 +16,10 @@ LIB_SOURCES = Sources/OTifierLib/OTPExtractor.swift \
 APP_SOURCES = Sources/OTifierApp/OTifierApp.swift \
               Sources/OTifierApp/AppState.swift \
               Sources/OTifierApp/OTifierMenu.swift \
-              Sources/OTifierApp/AccessibilityDragPanel.swift
+              Sources/OTifierApp/AccessibilityDragPanel.swift \
+              Sources/OTifierApp/LocalizationManager.swift
+
+LOCALIZATION_CONFIG = Sources/OTifierApp/Localizations.json
 
 BUILD_DIR = .build
 APP_BUNDLE = $(BUILD_DIR)/Otifier.app
@@ -60,7 +63,7 @@ $(BUILD_DIR)/ax-explorer: Sources/ax-explorer/main.swift | $(BUILD_DIR)
 
 app: $(APP_BUNDLE)
 
-$(APP_BUNDLE): check-sparkle $(APP_SOURCES) $(LIB_SOURCES) Sources/OTifierApp/Info.plist AppIcon.icns | $(BUILD_DIR)
+$(APP_BUNDLE): check-sparkle $(APP_SOURCES) $(LIB_SOURCES) $(LOCALIZATION_CONFIG) Sources/OTifierApp/Info.plist AppIcon.icns | $(BUILD_DIR)
 	@echo "Building Otifier.app..."
 	$(SWIFT) $(SWIFT_FLAGS) \
 		-F $(SPARKLE_DIR) -framework Sparkle \
@@ -72,12 +75,13 @@ $(APP_BUNDLE): check-sparkle $(APP_SOURCES) $(LIB_SOURCES) Sources/OTifierApp/In
 	@cp $(BUILD_DIR)/OTifierApp $(APP_BUNDLE)/Contents/MacOS/Otifier
 	@cp Sources/OTifierApp/Info.plist $(APP_BUNDLE)/Contents/Info.plist
 	@cp AppIcon.icns $(APP_BUNDLE)/Contents/Resources/AppIcon.icns
+	@cp $(LOCALIZATION_CONFIG) $(APP_BUNDLE)/Contents/Resources/Localizations.json
 	@rm -rf $(APP_BUNDLE)/Contents/Frameworks/Sparkle.framework
 	@cp -R $(SPARKLE_FRAMEWORK) $(APP_BUNDLE)/Contents/Frameworks/
 	@codesign --force --sign - --deep $(APP_BUNDLE)
 	@echo "Built $(APP_BUNDLE)"
 
-release: check-sparkle $(APP_SOURCES) $(LIB_SOURCES) Sources/OTifierApp/Info.plist AppIcon.icns $(ENTITLEMENTS) | $(BUILD_DIR)
+release: check-sparkle $(APP_SOURCES) $(LIB_SOURCES) $(LOCALIZATION_CONFIG) Sources/OTifierApp/Info.plist AppIcon.icns $(ENTITLEMENTS) | $(BUILD_DIR)
 	@if [ -z "$(DEVELOPER_ID)" ]; then \
 		echo "ERROR: DEVELOPER_ID is not set."; \
 		echo "Set it via env var or Makefile.local, e.g.:"; \
@@ -97,6 +101,7 @@ release: check-sparkle $(APP_SOURCES) $(LIB_SOURCES) Sources/OTifierApp/Info.pli
 	@cp $(BUILD_DIR)/OTifierApp $(APP_BUNDLE)/Contents/MacOS/Otifier
 	@cp Sources/OTifierApp/Info.plist $(APP_BUNDLE)/Contents/Info.plist
 	@cp AppIcon.icns $(APP_BUNDLE)/Contents/Resources/AppIcon.icns
+	@cp $(LOCALIZATION_CONFIG) $(APP_BUNDLE)/Contents/Resources/Localizations.json
 	@rm -rf $(APP_BUNDLE)/Contents/Frameworks/Sparkle.framework
 	@cp -R $(SPARKLE_FRAMEWORK) $(APP_BUNDLE)/Contents/Frameworks/
 	@$(MAKE) sign-sparkle
@@ -222,7 +227,7 @@ site:
 test: $(BUILD_DIR)/test-runner
 	$(BUILD_DIR)/test-runner
 
-$(BUILD_DIR)/test-runner: Tests/OTifierLibTests/OTPExtractorTests.swift $(LIB_SOURCES) | $(BUILD_DIR)
+$(BUILD_DIR)/test-runner: Tests/OTifierLibTests/OTPExtractorTests.swift $(LIB_SOURCES) $(LOCALIZATION_CONFIG) | $(BUILD_DIR)
 	$(SWIFT) $(SWIFT_FLAGS) -o $@ Tests/OTifierLibTests/OTPExtractorTests.swift $(LIB_SOURCES)
 
 $(BUILD_DIR):

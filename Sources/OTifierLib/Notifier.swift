@@ -17,7 +17,7 @@ private let notificationDelegate: NotificationDelegate = {
     return delegate
 }()
 
-func showNotification(otp: String, source: String) {
+func showNotification(title: String, body: String) {
     _ = notificationDelegate
 
     let center = UNUserNotificationCenter.current()
@@ -26,27 +26,27 @@ func showNotification(otp: String, source: String) {
         case .notDetermined:
             center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
                 if granted {
-                    deliver(otp: otp, source: source)
+                    deliver(title: title, body: body)
                 }
             }
         case .authorized, .provisional, .ephemeral:
-            deliver(otp: otp, source: source)
+            deliver(title: title, body: body)
         case .denied:
             break
         @unknown default:
-            deliver(otp: otp, source: source)
+            deliver(title: title, body: body)
         }
     }
 }
 
-private func deliver(otp: String, source: String) {
+private func deliver(title: String, body: String) {
     // Deliberately omit the OTP digits from the notification — macOS persists
     // delivered notifications in Notification Center history (and on disk under
     // ~/Library/Group Containers/group.com.apple.usernoted/), so digits here
     // would linger after dismissal. The code is already on the clipboard.
     let content = UNMutableNotificationContent()
-    content.title = "Verification code copied"
-    content.body = "Paste it where you need it."
+    content.title = title
+    content.body = body
     content.sound = .default
 
     let request = UNNotificationRequest(

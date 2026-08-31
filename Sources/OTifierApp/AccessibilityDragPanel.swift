@@ -15,7 +15,7 @@ final class AccessibilityDragPanelController: NSObject {
     private var trackingTimer: Timer?
     private var missingWindowSince: Date?
 
-    func show() {
+    func show(message: String) {
         if panel != nil {
             reposition()
             return
@@ -36,7 +36,7 @@ final class AccessibilityDragPanelController: NSObject {
         panel.hasShadow = true
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
 
-        let hosting = NSHostingView(rootView: DragPanelContent())
+        let hosting = NSHostingView(rootView: DragPanelContent(message: message))
         hosting.frame = NSRect(x: 0, y: 0, width: panelWidth, height: panelHeight)
         panel.contentView = hosting
 
@@ -152,13 +152,15 @@ final class AccessibilityDragPanelController: NSObject {
 private let arrowBlue = Color(red: 0x54 / 255.0, green: 0xB6 / 255.0, blue: 0xFF / 255.0)
 
 private struct DragPanelContent: View {
+    let message: String
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: "arrow.up")
                     .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(arrowBlue)
-                Text("Drag Otifier to the list above to allow Accessibility")
+                Text(message)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(.primary)
                 Spacer(minLength: 0)
