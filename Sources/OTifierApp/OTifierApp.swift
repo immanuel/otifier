@@ -13,6 +13,7 @@ struct OTifierApp: App {
     var body: some Scene {
         MenuBarExtra {
             OTifierMenu(state: appState)
+                .environmentObject(appState.localization)
         } label: {
             Image(systemName: "rectangle.and.pencil.and.ellipsis")
         }
