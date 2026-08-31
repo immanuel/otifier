@@ -5,6 +5,15 @@ import Foundation
 var passed = 0
 var failed = 0
 
+func assertTrue(_ condition: @autoclosure () -> Bool, _ message: String, file: String = #file, line: Int = #line) {
+    if condition() {
+        passed += 1
+    } else {
+        failed += 1
+        print("FAIL (\(file):\(line)): \(message)")
+    }
+}
+
 func assertEqual(_ actual: String?, _ expected: String?, file: String = #file, line: Int = #line) {
     if actual == expected {
         passed += 1
@@ -78,6 +87,20 @@ func assertNil(_ actual: String?, file: String = #file, line: Int = #line) {
 
         // --- Should NOT extract: edge cases around \b ---
         assertNil(extractOTP(from: "decode 12345 binary string"))         // 'code' is inside 'decode'
+
+        // --- Notification scan throttling ---
+        var gate = NotificationScanGate()
+        let empty = NotificationWindowFingerprint(values: [])
+        let banner = NotificationWindowFingerprint(values: ["42:0:1.0:0,0,400,100"])
+        let start = Date(timeIntervalSince1970: 1_000)
+
+        assertTrue(gate.shouldScan(fingerprint: empty, now: start), "initial state must be scanned")
+        assertTrue(gate.shouldScan(fingerprint: empty, now: start.addingTimeInterval(1)), "initial scan gets one content follow-up")
+        assertTrue(!gate.shouldScan(fingerprint: empty, now: start.addingTimeInterval(2)), "unchanged idle state must not scan continuously")
+        assertTrue(gate.shouldScan(fingerprint: banner, now: start.addingTimeInterval(3)), "a new banner window must trigger a scan")
+        assertTrue(gate.shouldScan(fingerprint: banner, now: start.addingTimeInterval(4)), "a new banner gets one content follow-up")
+        assertTrue(!gate.shouldScan(fingerprint: banner, now: start.addingTimeInterval(5)), "stable banner must not trigger repeated scans")
+        assertTrue(gate.shouldScan(fingerprint: banner, now: start.addingTimeInterval(35)), "the safety interval must eventually rescan")
 
         // --- Summary ---
         print("\nOTP Extractor Tests: \(passed) passed, \(failed) failed")
